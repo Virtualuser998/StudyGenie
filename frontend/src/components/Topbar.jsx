@@ -1,60 +1,24 @@
+function readCurrentUser() {
+  try {
+    return JSON.parse(localStorage.getItem("user") || "null");
+  } catch {
+    return null;
+  }
+}
+
 function Topbar() {
-
-  const user = JSON.parse(
-    localStorage.getItem("user")
-  );
-
+  const user = readCurrentUser();
   return (
     <header className="dashboardTopbar">
-
       <div className="welcomeText">
-
-        <h1>
-          Welcome back,
-          {" "}
-          {user?.name || "Student"} 👋
-        </h1>
-
-        <p>
-          Continue your learning journey
-          and achieve your study goals.
-        </p>
-
+        <h1>Welcome back, {user?.name || "Student"}</h1>
+        <p>Keep learning at your own pace.</p>
       </div>
-
-      <div className="topbarActions">
-
-        <div className="dashboardSearch">
-
-          <span>
-            🔍
-          </span>
-
-          <input
-            type="text"
-            placeholder="Search anything..."
-          />
-
-        </div>
-
-        <button className="notificationBtn">
-
-          🔔
-
-          <span>
-            3
-          </span>
-
-        </button>
-
+      <div className="topbarActions" aria-label="Signed-in account">
         <div className="topbarAvatar">
-          {user?.name
-            ? user.name.charAt(0).toUpperCase()
-            : "S"}
+          {user?.name ? user.name.charAt(0).toUpperCase() : "S"}
         </div>
-
       </div>
-
     </header>
   );
 }

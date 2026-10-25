@@ -35,12 +35,6 @@ function Sidebar() {
         <NavLink to="/settings">⚙️ Settings</NavLink>
 
       </nav>
-      <div className="upgradeBox">
-
-        <h3> 👑 Upgrade to Pro</h3>
-        <p> Unlock advanced AI tools and more study features. </p>
-        <button> Upgrade Now </button>
-      </div>
       <div className="sidebarProfile">
         <div className="profileAvatar">
           {user?.name
@@ -50,7 +44,6 @@ function Sidebar() {
         <div className="profileText">
           <h4>{user?.name || "Student"}</h4>
 
-          <p>  TY BSc IT</p>
         </div>
         <button
           className="logoutBtn"

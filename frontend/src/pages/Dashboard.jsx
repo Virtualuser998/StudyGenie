@@ -1,444 +1,192 @@
+import { useEffect, useMemo, useState } from "react";
+import axios from "axios";
+import { Link } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import Topbar from "../components/Topbar";
 import StatCard from "../components/StatCard";
 
+function formatDate(date) {
+  const parsed = new Date(date);
+  return Number.isNaN(parsed.getTime())
+    ? "Date unavailable"
+    : parsed.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+}
+
 function Dashboard() {
+  const [materials, setMaterials] = useState([]);
+  const [notes, setNotes] = useState([]);
+  const [quizHistory, setQuizHistory] = useState([]);
+  const [hasToken] = useState(() => Boolean(localStorage.getItem("token")));
+  const [loading, setLoading] = useState(hasToken);
+  const [error, setError] = useState(
+    hasToken ? "" : "Sign in to see your saved study activity."
+  );
+  const [reloadKey, setReloadKey] = useState(0);
+
+  useEffect(() => {
+    let active = true;
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      return () => { active = false; };
+    }
+
+    Promise.all([
+      axios.get("/api/materials", {
+        headers: { Authorization: `Bearer ${token}` }
+      }),
+      axios.get("/api/ai/notes", {
+        headers: { Authorization: `Bearer ${token}` }
+      }),
+      axios.get("/api/quizzes/history", {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+    ])
+      .then(([materialsResponse, notesResponse, quizHistoryResponse]) => {
+        if (!active) return;
+        setMaterials(Array.isArray(materialsResponse.data) ? materialsResponse.data : []);
+        setNotes(Array.isArray(notesResponse.data) ? notesResponse.data : []);
+        setQuizHistory(Array.isArray(quizHistoryResponse.data) ? quizHistoryResponse.data : []);
+      })
+      .catch(() => {
+        if (active) {
+          setError("Could not load your saved activity. Check your connection and try again.");
+        }
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => { active = false; };
+  }, [reloadKey]);
+
+  const averageScore = quizHistory.length
+    ? Math.round(
+      quizHistory.reduce((total, attempt) => {
+        const score = Number(attempt.score) || 0;
+        const totalQuestions = Number(attempt.total) || 0;
+        return total + (totalQuestions ? score / totalQuestions : 0);
+      }, 0) / quizHistory.length * 100
+    )
+    : null;
+
+  const recentActivity = useMemo(() => [
+    ...materials.map((material) => ({
+      id: `material-${material._id}`,
+      icon: "📁",
+      title: `Uploaded ${material.originalName}`,
+      date: material.createdAt
+    })),
+    ...notes.map((note) => ({
+      id: `note-${note._id}`,
+      icon: "✦",
+      title: `Generated ${note.noteType || "AI notes"}: ${note.title}`,
+      date: note.createdAt
+    })),
+    ...quizHistory.map((attempt) => ({
+      id: `quiz-${attempt.id}`,
+      icon: "✓",
+      title: `Completed ${attempt.materialName || attempt.subject || "study"} quiz · ${attempt.score}/${attempt.total}`,
+      date: attempt.date
+    }))
+  ]
+    .filter((item) => item.date && !Number.isNaN(new Date(item.date).getTime()))
+    .sort((first, second) => new Date(second.date) - new Date(first.date))
+    .slice(0, 6), [materials, notes, quizHistory]);
 
   return (
     <div className="dashboardLayout">
-
       <Sidebar />
-
       <main className="dashboardMain">
-
         <Topbar />
 
-        {/* TOP CARDS */}
-
-        <section className="dashboardStats">
-
-          <StatCard
-            icon="📚"
-            title="Study Materials"
-            value="24"
-            subtitle="+4 this week"
-          />
-
-          <StatCard
-            icon="📝"
-            title="Notes Generated"
-            value="18"
-            subtitle="+3 this week"
-          />
-
-          <StatCard
-            icon="🤖"
-            title="Doubts Solved"
-            value="36"
-            subtitle="+8 this week"
-          />
-
-          <StatCard
-            icon="🏆"
-            title="Quiz Score"
-            value="85%"
-            subtitle="+12% improvement"
-          />
-
+        <section className="dashboardQuickLinks" aria-label="Study actions">
+          <div>
+            <h2>Your study space</h2>
+            <p>Pick up where you left off with your own materials and practice.</p>
+          </div>
+          <div className="dashboardActionLinks">
+            <Link className="dashboardActionSecondary" to="/materials">Manage materials</Link>
+            <Link className="dashboardActionPrimary" to="/quiz">Create a quiz <span aria-hidden="true">→</span></Link>
+          </div>
         </section>
 
-
-        {/* MIDDLE SECTION */}
-
-        <section className="dashboardMiddle">
-
-          {/* LEARNING PROGRESS */}
-
-          <div className="dashboardCard learningCard">
-
-            <div className="dashboardCardHeader">
-
-              <h2>
-                📈 Learning Progress
-              </h2>
-
-              <select>
-                <option>
-                  This Week
-                </option>
-
-                <option>
-                  This Month
-                </option>
-              </select>
-
-            </div>
-
-            <div className="progressChart">
-
-              <div className="barItem">
-                <div
-                  className="bar"
-                  style={{
-                    height: "35%"
-                  }}
-                ></div>
-                <span>Mon</span>
-              </div>
-
-              <div className="barItem">
-                <div
-                  className="bar"
-                  style={{
-                    height: "45%"
-                  }}
-                ></div>
-                <span>Tue</span>
-              </div>
-
-              <div className="barItem">
-                <div
-                  className="bar"
-                  style={{
-                    height: "55%"
-                  }}
-                ></div>
-                <span>Wed</span>
-              </div>
-
-              <div className="barItem">
-                <div
-                  className="bar"
-                  style={{
-                    height: "65%"
-                  }}
-                ></div>
-                <span>Thu</span>
-              </div>
-
-              <div className="barItem">
-                <div
-                  className="bar"
-                  style={{
-                    height: "75%"
-                  }}
-                ></div>
-                <span>Fri</span>
-              </div>
-
-              <div className="barItem">
-                <div
-                  className="bar"
-                  style={{
-                    height: "85%"
-                  }}
-                ></div>
-                <span>Sat</span>
-              </div>
-
-              <div className="barItem">
-                <div
-                  className="bar"
-                  style={{
-                    height: "95%"
-                  }}
-                ></div>
-                <span>Sun</span>
-              </div>
-
-            </div>
-
-            <div className="learningStats">
-
-              <div>
-                <span>⏱️</span>
-                <h3>12h 30m</h3>
-                <p>Study Time</p>
-              </div>
-
-              <div>
-                <span>📖</span>
-                <h3>16</h3>
-                <p>Topics Covered</p>
-              </div>
-
-              <div>
-                <span>✅</span>
-                <h3>28</h3>
-                <p>Tasks Done</p>
-              </div>
-
-              <div>
-                <span>🎯</span>
-                <h3>85%</h3>
-                <p>Accuracy</p>
-              </div>
-
-            </div>
-
+        {error && (
+          <div className="dashboardNotice" role="alert">
+            <span>{error}</span>
+            {localStorage.getItem("token") && (
+              <button
+                type="button"
+                onClick={() => {
+                  setLoading(true);
+                  setError("");
+                  setReloadKey((key) => key + 1);
+                }}
+              >
+                Try again
+              </button>
+            )}
           </div>
+        )}
 
-
-          {/* TODAY SCHEDULE */}
-
-          <div className="dashboardCard">
-
-            <div className="dashboardCardHeader">
-
-              <h2>
-                📅 Today's Schedule
-              </h2>
-
-              <a href="/planner">
-                View Planner
-              </a>
-
-            </div>
-
-            <ScheduleItem
-              time="09:00 AM"
-              end="10:30 AM"
-              subject="Data Structures"
-              topic="Arrays and Linked Lists"
-              type="Study"
-            />
-
-            <ScheduleItem
-              time="11:00 AM"
-              end="12:00 PM"
-              subject="DBMS"
-              topic="SQL Joins & Normalization"
-              type="Study"
-            />
-
-            <ScheduleItem
-              time="02:00 PM"
-              end="03:00 PM"
-              subject="Operating Systems"
-              topic="Process Scheduling"
-              type="Study"
-            />
-
-            <ScheduleItem
-              time="04:00 PM"
-              end="05:00 PM"
-              subject="Quiz Practice"
-              topic="DBMS Chapter 3"
-              type="Quiz"
-            />
-
-          </div>
-
+        <section className="dashboardStats" aria-label="Your study statistics">
+          <StatCard icon="📚" title="Study materials" value={loading ? "…" : materials.length} subtitle="Files in your library" />
+          <StatCard icon="✦" title="AI notes & summaries" value={loading ? "…" : notes.length} subtitle="Saved to your account" />
+          <StatCard icon="✓" title="Quizzes completed" value={quizHistory.length} subtitle="Your practice attempts" />
+          <StatCard icon="◎" title="Average quiz score" value={averageScore === null ? "—" : `${averageScore}%`} subtitle={averageScore === null ? "Complete a quiz to begin" : "Across your attempts"} />
         </section>
 
-
-        {/* BOTTOM SECTION */}
-
-        <section className="dashboardBottom">
-
-          {/* RECENT ACTIVITY */}
-
+        <section className="dashboardBottom dashboardRealDataGrid">
           <div className="dashboardCard">
-
             <div className="dashboardCardHeader">
-
-              <h2>
-                ⚡ Recent Activity
-              </h2>
-
-              <a href="#">
-                View All
-              </a>
-
+              <h2>Recent activity</h2>
+              <Link to="/progress">Progress</Link>
             </div>
-
-            <ActivityItem
-              icon="📝"
-              text="AI Notes generated for Linked List"
-              time="Today, 10:30 AM"
-            />
-
-            <ActivityItem
-              icon="🤖"
-              text="Doubt solved: What is Normalization?"
-              time="Today, 09:15 AM"
-            />
-
-            <ActivityItem
-              icon="🏆"
-              text="Completed DBMS Chapter 2 Quiz"
-              time="Yesterday, 06:20 PM"
-            />
-
-            <ActivityItem
-              icon="📁"
-              text="Uploaded Operating Systems Notes.pdf"
-              time="Yesterday, 04:45 PM"
-            />
-
+            {loading ? (
+              <p className="dashboardEmptyState">Loading your activity…</p>
+            ) : recentActivity.length ? (
+              <div className="dashboardActivityList">
+                {recentActivity.map((item) => (
+                  <article className="dashboardActivityItem" key={item.id}>
+                    <span className="dashboardActivityIcon" aria-hidden="true">{item.icon}</span>
+                    <p>{item.title}</p>
+                    <time dateTime={new Date(item.date).toISOString()}>{formatDate(item.date)}</time>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <div className="dashboardEmptyState">
+                <p>Your uploads, AI summaries, and quiz attempts will show here.</p>
+                <Link to="/materials">Upload your first study material</Link>
+              </div>
+            )}
           </div>
 
-
-          {/* QUIZ PERFORMANCE */}
-
-          <div className="dashboardCard">
-
+          <div className="dashboardCard dashboardLibraryCard">
             <div className="dashboardCardHeader">
-
-              <h2>
-                🏆 Quiz Performance
-              </h2>
-
-              <a href="/quiz">
-                View All
-              </a>
-
+              <h2>Study materials</h2>
+              <Link to="/materials">View all</Link>
             </div>
-
-            <div className="quizDashboardContent">
-
-              <div className="quizCircle">
-
-                <div>
-
-                  <h1>
-                    85%
-                  </h1>
-
-                  <p>
-                    Overall Score
-                  </p>
-
-                </div>
-
+            {loading ? (
+              <p className="dashboardEmptyState">Loading your library…</p>
+            ) : materials.length ? (
+              <div className="dashboardMaterialList">
+                {materials.slice(0, 5).map((material) => (
+                  <div className="dashboardMaterialItem" key={material._id}>
+                    <span className="dashboardMaterialIcon" aria-hidden="true">📄</span>
+                    <div><strong>{material.originalName}</strong><small>{material.subject || "General"} · {formatDate(material.createdAt)}</small></div>
+                  </div>
+                ))}
               </div>
-
-              <div className="quizDetails">
-
-                <p>
-                  <span>
-                    🟢 Correct Answers
-                  </span>
-
-                  <strong>
-                    68
-                  </strong>
-                </p>
-
-                <p>
-                  <span>
-                    🔴 Incorrect Answers
-                  </span>
-
-                  <strong>
-                    12
-                  </strong>
-                </p>
-
-                <p>
-                  <span>
-                    🔵 Total Quizzes
-                  </span>
-
-                  <strong>
-                    8
-                  </strong>
-                </p>
-
-                <p>
-                  <span>
-                    🟣 Average Score
-                  </span>
-
-                  <strong>
-                    85%
-                  </strong>
-                </p>
-
+            ) : (
+              <div className="dashboardEmptyState">
+                <p>No files uploaded yet.</p>
+                <Link to="/materials">Go to study materials</Link>
               </div>
-
-            </div>
-
+            )}
           </div>
-
         </section>
-
       </main>
-
-    </div>
-  );
-}
-
-
-function ScheduleItem({
-  time,
-  end,
-  subject,
-  topic,
-  type
-}) {
-
-  return (
-    <div className="scheduleRow">
-
-      <div className="scheduleTime">
-
-        <strong>
-          {time}
-        </strong>
-
-        <span>
-          {end}
-        </span>
-
-      </div>
-
-      <div className="scheduleInfo">
-
-        <h4>
-          {subject}
-        </h4>
-
-        <p>
-          {topic}
-        </p>
-
-      </div>
-
-      <span className="scheduleType">
-        {type}
-      </span>
-
-    </div>
-  );
-}
-
-
-function ActivityItem({
-  icon,
-  text,
-  time
-}) {
-
-  return (
-    <div className="activityRow">
-
-      <div className="activityIcon">
-        {icon}
-      </div>
-
-      <div className="activityText">
-
-        <p>
-          {text}
-        </p>
-
-        <span>
-          {time}
-        </span>
-
-      </div>
-
     </div>
   );
 }

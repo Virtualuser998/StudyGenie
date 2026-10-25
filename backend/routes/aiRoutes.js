@@ -4,9 +4,12 @@ const { GoogleGenAI } = require("@google/genai");
 const multer = require("multer");
 const pdfParse = require("pdf-parse");
 const mammoth = require("mammoth");
+const fs = require("fs");
+const path = require("path");
 
 const authMiddleware =require("../middleware/authMiddleware");
 const AINote =require("../models/AINote");
+const Material = require("../models/Material");
 const router = express.Router();
 
 const aiFileUpload = multer({
@@ -337,6 +340,154 @@ router.delete(
       console.error("Delete AI Note Error:", error);
       res.status(500).json({
         message:"Failed to delete AI note"});
+    }
+  }
+);
+
+// ========================================
+// GENERATE A SUMMARY AND QUIZ FROM A SAVED MATERIAL
+// POST /api/ai/material-study-kit
+// ========================================
+router.post(
+  "/material-study-kit",
+  authMiddleware,
+  async (req, res) => {
+    try {
+      const { materialId } = req.body;
+
+      if (!/^[a-f\d]{24}$/i.test(materialId || "")) {
+        return res.status(400).json({ message: "Choose a valid study material" });
+      }
+
+      const material = await Material.findOne({
+        _id: materialId,
+        user: req.user.id
+      });
+
+      if (!material) {
+        return res.status(404).json({ message: "Study material not found" });
+      }
+
+      const extension = path.extname(material.originalName).toLowerCase();
+      const absolutePath = path.isAbsolute(material.filePath)
+        ? material.filePath
+        : path.resolve(process.cwd(), material.filePath);
+
+      if (!fs.existsSync(absolutePath)) {
+        return res.status(404).json({
+          message: "The uploaded file is missing. Please upload it again."
+        });
+      }
+
+      const fileBuffer = await fs.promises.readFile(absolutePath);
+      let sourceText = "";
+
+      if (extension === ".txt") {
+        sourceText = fileBuffer.toString("utf8");
+      } else if (extension === ".pdf") {
+        const pdfData = await pdfParse(fileBuffer);
+        sourceText = pdfData.text || "";
+      } else if (extension === ".docx") {
+        const result = await mammoth.extractRawText({ buffer: fileBuffer });
+        sourceText = result.value || "";
+      } else {
+        return res.status(415).json({
+          message: "Quiz generation supports PDF, DOCX, and TXT files."
+        });
+      }
+
+      sourceText = sourceText.trim();
+      if (!sourceText) {
+        return res.status(400).json({
+          message: "No readable study text was found in this file."
+        });
+      }
+
+      if (!process.env.GEMINI_API_KEY) {
+        return res.status(503).json({
+          message: "AI generation is not configured. Add GEMINI_API_KEY in Replit Secrets."
+        });
+      }
+
+      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+      const prompt = `Create a student-friendly study kit from this material.
+Return only valid JSON with this exact shape:
+{
+  "summary": "A concise markdown summary with headings and key points",
+  "questions": [
+    {
+      "question": "Question text",
+      "options": ["Option A", "Option B", "Option C", "Option D"],
+      "answer": 0,
+      "explanation": "Why the correct option is correct"
+    }
+  ]
+}
+Create exactly 5 multiple-choice questions based only on the source material.
+Each question must have 4 distinct options. The answer must be a zero-based option index.
+Do not include facts that are not supported by the material.
+
+Study material:
+${sourceText.slice(0, 30000)}`;
+
+      const response = await generateWithFallback(ai, prompt);
+      const rawText = response.text || "";
+      const jsonText = rawText
+        .replace(/^```(?:json)?\s*/i, "")
+        .replace(/\s*```$/, "")
+        .trim();
+      let studyKit;
+
+      try {
+        studyKit = JSON.parse(jsonText);
+      } catch {
+        return res.status(502).json({
+          message: "The AI returned an unreadable quiz. Please try again."
+        });
+      }
+
+      const validQuestions = Array.isArray(studyKit.questions)
+        && studyKit.questions.length === 5
+        && studyKit.questions.every((question) =>
+          typeof question.question === "string"
+          && Array.isArray(question.options)
+          && question.options.length === 4
+          && Number.isInteger(question.answer)
+          && question.answer >= 0
+          && question.answer < 4
+          && typeof question.explanation === "string"
+        );
+
+      if (typeof studyKit.summary !== "string" || !studyKit.summary.trim() || !validQuestions) {
+        return res.status(502).json({
+          message: "The AI returned an incomplete study kit. Please try again."
+        });
+      }
+
+      const savedNote = await AINote.create({
+        user: req.user.id,
+        title: `${material.originalName} summary`.slice(0, 60),
+        sourceType: "material",
+        sourceText: sourceText.slice(0, 30000),
+        noteType: "Summary",
+        generatedNotes: studyKit.summary
+      });
+
+      res.json({
+        material: {
+          id: material._id,
+          originalName: material.originalName,
+          subject: material.subject
+        },
+        summary: studyKit.summary,
+        questions: studyKit.questions,
+        savedNoteId: savedNote._id
+      });
+    } catch (error) {
+      console.error("Generate Material Study Kit Error:", error);
+      res.status(500).json({
+        message: "Could not generate a summary and quiz. Please try again."
+      });
     }
   }
 );

@@ -215,6 +215,91 @@
   color: #785de1;
 }
 
+.quizMaterialSelect {
+  width: 100%;
+  min-height: 46px;
+  margin-bottom: 4px;
+  border: 1px solid #e4e1ed;
+  border-radius: 10px;
+  padding: 0 12px;
+  background: white;
+  color: #38354d;
+  font: inherit;
+  font-size: 12px;
+}
+
+.quizSupportedTypes {
+  margin: 5px 0 18px;
+  color: #9693a2;
+  font-size: 10px;
+}
+
+.quizSetupCard > .learningPrimaryButton {
+  width: 100%;
+}
+
+.quizNoMaterials p {
+  margin: 0 0 16px;
+  line-height: 1.6;
+}
+
+.quizNoMaterials .learningPrimaryButton {
+  display: inline-flex;
+  width: auto;
+  text-decoration: none;
+}
+
+.quizErrorNotice {
+  margin: 0 0 18px;
+  border: 1px solid #f0d5c9;
+  border-radius: 10px;
+  padding: 12px 15px;
+  background: #fff8f4;
+  color: #8c4c35;
+  font-size: 12px;
+}
+
+.quizSummaryCard {
+  grid-column: 1 / -1;
+}
+
+.quizSummaryHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #efedf4;
+}
+
+.quizSummaryHeader h2 {
+  overflow-wrap: anywhere;
+}
+
+.quizSummaryContent {
+  padding-top: 12px;
+  color: #555268;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.quizSummaryContent h1,
+.quizSummaryContent h2,
+.quizSummaryContent h3 {
+  margin: 16px 0 8px;
+  color: #302d42;
+  font-size: 15px;
+}
+
+.quizSummaryContent p {
+  margin: 8px 0;
+}
+
+.quizSummaryContent ul,
+.quizSummaryContent ol {
+  padding-left: 22px;
+}
+
 .practiceScore {
   display: flex;
   align-items: center;

@@ -1,69 +1,133 @@
 import { useEffect, useState } from "react";
+import axios from "axios";
+import ReactMarkdown from "react-markdown";
+import { Link } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import Topbar from "../components/Topbar";
-import { quizQuestionBank } from "../data/quizQuestions";
 import "../styles/learningTools.css";
 
-const HISTORY_KEY = "studygenie-quiz-history";
-
-function readHistory() {
-  try {
-    const stored = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
-    return Array.isArray(stored) ? stored : [];
-  } catch {
-    return [];
-  }
-}
+const SUPPORTED_MATERIAL = /\.(pdf|docx|txt)$/i;
 
 function QuizAssessment() {
-  const [subject, setSubject] = useState("DBMS");
+  const [materials, setMaterials] = useState([]);
+  const [selectedMaterialId, setSelectedMaterialId] = useState("");
+  const [hasToken] = useState(() => Boolean(localStorage.getItem("token")));
+  const [materialsLoading, setMaterialsLoading] = useState(hasToken);
+  const [history, setHistory] = useState([]);
+  const [studyKit, setStudyKit] = useState(null);
   const [quiz, setQuiz] = useState(null);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState({});
-  const [history, setHistory] = useState(readHistory);
   const [showReview, setShowReview] = useState(false);
   const [reviewAnswers, setReviewAnswers] = useState(false);
+  const [generating, setGenerating] = useState(false);
+  const [savingAttempt, setSavingAttempt] = useState(false);
+  const [error, setError] = useState(
+    hasToken ? "" : "Sign in to use your uploaded study materials."
+  );
 
   useEffect(() => {
-    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
-  }, [history]);
+    let active = true;
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      return () => { active = false; };
+    }
+
+    Promise.all([
+      axios.get("/api/materials", {
+        headers: { Authorization: `Bearer ${token}` }
+      }),
+      axios.get("/api/quizzes/history", {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+    ])
+      .then(([materialsResponse, historyResponse]) => {
+        if (!active) return;
+        const allMaterials = Array.isArray(materialsResponse.data) ? materialsResponse.data : [];
+        const supportedMaterials = allMaterials.filter((material) => SUPPORTED_MATERIAL.test(material.originalName || ""));
+        setMaterials(supportedMaterials);
+        setSelectedMaterialId(supportedMaterials[0]?._id || "");
+        setHistory(Array.isArray(historyResponse.data) ? historyResponse.data : []);
+      })
+      .catch(() => {
+        if (active) setError("Could not load your study materials and quiz history. Please try again.");
+      })
+      .finally(() => {
+        if (active) setMaterialsLoading(false);
+      });
+
+    return () => { active = false; };
+  }, []);
+
+  const selectedMaterial = materials.find((material) => material._id === selectedMaterialId);
+  const bestScore = history.length
+    ? history.reduce(
+      (best, attempt) => Math.max(best, Math.round((attempt.score / attempt.total) * 100)),
+      0
+    )
+    : null;
+
+  const generateStudyKit = async () => {
+    if (!selectedMaterial) return;
+    const token = localStorage.getItem("token");
+    setGenerating(true);
+    setError("");
+    setStudyKit(null);
+
+    try {
+      const response = await axios.post(
+        "/api/ai/material-study-kit",
+        { materialId: selectedMaterial._id },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setStudyKit(response.data);
+    } catch (requestError) {
+      setError(requestError.response?.data?.message || "Could not generate your study kit. Please try again.");
+    } finally {
+      setGenerating(false);
+    }
+  };
 
   const startQuiz = () => {
-    setQuiz(quizQuestionBank[subject]);
+    if (!studyKit?.questions?.length) return;
+    setQuiz(studyKit.questions);
     setCurrentQuestion(0);
     setAnswers({});
     setShowReview(false);
     setReviewAnswers(false);
   };
 
-  const finishQuiz = () => {
+  const finishQuiz = async () => {
+    if (!allAnswered || savingAttempt) return;
     const score = quiz.reduce(
       (total, item, index) => total + (answers[index] === item.answer ? 1 : 0),
-      0,
+      0
     );
-    const attempt = {
-      id: Date.now(),
-      subject,
-      score,
-      total: quiz.length,
-      date: new Date().toISOString(),
-    };
-    setHistory((previous) => [attempt, ...previous].slice(0, 8));
-    setShowReview(true);
+    const token = localStorage.getItem("token");
+    setSavingAttempt(true);
+    setError("");
+
+    try {
+      const response = await axios.post(
+        "/api/quizzes/attempts",
+        { materialId: selectedMaterialId, score, total: quiz.length },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setHistory((previous) => [response.data, ...previous].slice(0, 100));
+      setShowReview(true);
+    } catch (requestError) {
+      setError(requestError.response?.data?.message || "Could not save your quiz result. Finish the quiz again to retry.");
+    } finally {
+      setSavingAttempt(false);
+    }
   };
 
   const score = quiz
-    ? quiz.reduce(
-        (total, item, index) => total + (answers[index] === item.answer ? 1 : 0),
-        0,
-      )
+    ? quiz.reduce((total, item, index) => total + (answers[index] === item.answer ? 1 : 0), 0)
     : 0;
   const question = quiz?.[currentQuestion];
-  const isAnswered = quiz && Object.keys(answers).length === quiz.length;
-  const bestScore = history.reduce(
-    (best, item) => Math.max(best, Math.round((item.score / item.total) * 100)),
-    0,
-  );
+  const allAnswered = quiz && Object.keys(answers).length === quiz.length;
 
   return (
     <div className="dashboardLayout">
@@ -72,90 +136,126 @@ function QuizAssessment() {
         <Topbar />
         <section className="learningPageIntro">
           <div>
-            <span className="learningEyebrow">PRACTICE & GROW</span>
-            <h1>Quiz &amp; Assessment</h1>
-            <p>Test what you know, review every answer, and keep track of your progress.</p>
+            <span className="learningEyebrow">STUDY FROM YOUR UPLOADS</span>
+            <h1>AI summary &amp; quiz</h1>
+            <p>Choose a study file to get a summary and a practice quiz made from its content.</p>
           </div>
           {quiz && !showReview && (
-            <button className="learningSecondaryButton" onClick={() => setQuiz(null)}>
+            <button className="learningSecondaryButton" onClick={() => setQuiz(null)} type="button">
               Exit quiz
             </button>
           )}
         </section>
 
+        {error && <div className="quizErrorNotice" role="alert">{error}</div>}
+
         {!quiz ? (
           <div className="learningGrid quizLandingGrid">
             <section className="learningCard quizSetupCard">
               <div className="learningCardHeading">
-                <div className="learningIcon">✦</div>
+                <div className="learningIcon" aria-hidden="true">✦</div>
                 <div>
-                  <h2>Ready for a quick challenge?</h2>
-                  <p>Choose a subject and start a five-question practice quiz.</p>
+                  <h2>Turn your material into practice</h2>
+                  <p>Your summary and questions are based on the selected upload.</p>
                 </div>
               </div>
-              <label className="learningLabel" htmlFor="quiz-subject">Choose a subject</label>
-              <div className="subjectOptions" role="group" aria-label="Quiz subject">
-                {Object.keys(quizQuestionBank).map((item) => (
-                  <button
-                    className={`subjectOption ${subject === item ? "selected" : ""}`}
-                    key={item}
-                    onClick={() => setSubject(item)}
-                    type="button"
+
+              {materialsLoading ? (
+                <p className="learningEmptyNote">Loading your uploaded materials…</p>
+              ) : materials.length ? (
+                <>
+                  <label className="learningLabel" htmlFor="quiz-material">Choose study material</label>
+                  <select
+                    className="quizMaterialSelect"
+                    id="quiz-material"
+                    value={selectedMaterialId}
+                    onChange={(event) => {
+                      setSelectedMaterialId(event.target.value);
+                      setStudyKit(null);
+                      setError("");
+                    }}
                   >
-                    <span>{item === "DBMS" ? "🗄️" : item === "Java" ? "☕" : "⚙️"}</span>
-                    <strong>{item}</strong>
-                    <small>5 questions · 5 min</small>
+                    {materials.map((material) => (
+                      <option key={material._id} value={material._id}>
+                        {material.originalName} · {material.subject || "General"}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="quizSupportedTypes">Supported files: PDF, DOCX, TXT</p>
+                  <button className="learningPrimaryButton" disabled={generating || !selectedMaterial} onClick={generateStudyKit} type="button">
+                    {generating ? "Generating summary & quiz…" : "Generate summary & quiz"}
+                    {!generating && <span aria-hidden="true">→</span>}
                   </button>
-                ))}
-              </div>
-              <button className="learningPrimaryButton" onClick={startQuiz}>
-                Start {subject} quiz <span aria-hidden="true">→</span>
-              </button>
-              <div className="quizNote"><span>✦</span> Instant results with explanations for every question</div>
+                </>
+              ) : (
+                <div className="learningEmptyNote quizNoMaterials">
+                  <p>No supported uploads found yet. Upload a PDF, DOCX, or TXT file to get started.</p>
+                  <Link className="learningPrimaryButton" to="/materials">Upload study material <span aria-hidden="true">→</span></Link>
+                </div>
+              )}
             </section>
 
             <aside className="learningCard quizProgressCard">
               <div className="learningCardTitleRow">
-                <h2>Your practice</h2><span className="learningTitleIcon">▥</span>
+                <h2>Your quiz history</h2>
+                <span className="learningTitleIcon" aria-hidden="true">✓</span>
               </div>
               <div className="practiceScore">
                 <div className="scoreRing" style={{ "--score": `${bestScore}%` }}>
-                  <strong>{bestScore}%</strong>
+                  <strong>{bestScore === null ? "—" : `${bestScore}%`}</strong>
                 </div>
-                <div><strong>Personal best</strong><span>Keep building your streak</span></div>
+                <div><strong>Personal best</strong><span>From completed quizzes</span></div>
               </div>
               <div className="practiceStats">
                 <div><strong>{history.length}</strong><span>Quizzes taken</span></div>
-                <div><strong>{history.length ? `${Math.round(history.reduce((sum, item) => sum + item.score / item.total, 0) / history.length * 100)}%` : "—"}</strong><span>Average score</span></div>
+                <div>
+                  <strong>{history.length ? `${Math.round(history.reduce((sum, item) => sum + item.score / item.total, 0) / history.length * 100)}%` : "—"}</strong>
+                  <span>Average score</span>
+                </div>
               </div>
               <div className="recentQuizHeader"><strong>Recent attempts</strong></div>
               {history.length ? (
                 <ul className="quizHistoryList">
                   {history.slice(0, 4).map((attempt) => (
                     <li key={attempt.id}>
-                      <span className="quizHistoryDot">✓</span>
-                      <span><strong>{attempt.subject}</strong><small>{new Date(attempt.date).toLocaleDateString()}</small></span>
+                      <span className="quizHistoryDot" aria-hidden="true">✓</span>
+                      <span><strong>{attempt.materialName || attempt.subject}</strong><small>{new Date(attempt.date).toLocaleDateString()}</small></span>
                       <b>{attempt.score}/{attempt.total}</b>
                     </li>
                   ))}
                 </ul>
               ) : (
-                <p className="learningEmptyNote">Your completed quizzes will show up here.</p>
+                <p className="learningEmptyNote">Completed quizzes will appear here.</p>
               )}
             </aside>
+
+            {studyKit && (
+              <section className="learningCard quizSummaryCard">
+                <div className="quizSummaryHeader">
+                  <div>
+                    <span className="learningEyebrow">AI-GENERATED SUMMARY</span>
+                    <h2>{studyKit.material?.originalName || selectedMaterial?.originalName}</h2>
+                  </div>
+                  <button className="learningPrimaryButton" onClick={startQuiz} type="button">
+                    Start 5-question quiz <span aria-hidden="true">→</span>
+                  </button>
+                </div>
+                <div className="quizSummaryContent"><ReactMarkdown>{studyKit.summary}</ReactMarkdown></div>
+              </section>
+            )}
           </div>
         ) : showReview ? (
           <section className="learningCard quizResultCard">
-            <div className="resultIllustration">{score === quiz.length ? "🏆" : score >= 3 ? "✨" : "🌱"}</div>
+            <div className="resultIllustration" aria-hidden="true">{score === quiz.length ? "🏆" : score >= 3 ? "✨" : "🌱"}</div>
             <span className="learningEyebrow">QUIZ COMPLETE</span>
             <h2>{score === quiz.length ? "Perfect score!" : score >= 3 ? "Nice work!" : "Good start — keep going!"}</h2>
-            <p>You scored <strong>{score} out of {quiz.length}</strong> in {subject}.</p>
+            <p>You scored <strong>{score} out of {quiz.length}</strong> on {selectedMaterial?.originalName || "your study material"}.</p>
             <div className="resultBar"><span style={{ width: `${(score / quiz.length) * 100}%` }} /></div>
             <span className="resultPercent">{Math.round((score / quiz.length) * 100)}% correct</span>
             <div className="resultActions">
-              <button className="learningPrimaryButton" onClick={() => setReviewAnswers((visible) => !visible)}>{reviewAnswers ? "Hide answer review" : "Review answers"}</button>
-              <button className="learningSecondaryButton" onClick={startQuiz}>Try again</button>
-              <button className="learningSecondaryButton" onClick={() => setQuiz(null)}>Choose another subject</button>
+              <button className="learningPrimaryButton" onClick={() => setReviewAnswers((visible) => !visible)} type="button">{reviewAnswers ? "Hide answer review" : "Review answers"}</button>
+              <button className="learningSecondaryButton" onClick={startQuiz} type="button">Try again</button>
+              <button className="learningSecondaryButton" onClick={() => { setQuiz(null); setStudyKit(null); }} type="button">Choose another file</button>
             </div>
             {reviewAnswers && (
               <div className="answerReviewList">
@@ -176,7 +276,7 @@ function QuizAssessment() {
         ) : (
           <section className="learningCard activeQuizCard">
             <div className="quizProgressHeader">
-              <div><span className="learningEyebrow">{subject.toUpperCase()} PRACTICE</span><h2>Question {currentQuestion + 1} <span>of {quiz.length}</span></h2></div>
+              <div><span className="learningEyebrow">{(selectedMaterial?.subject || "STUDY MATERIAL").toUpperCase()}</span><h2>Question {currentQuestion + 1} <span>of {quiz.length}</span></h2></div>
               <span className="quizQuestionCount">{Object.keys(answers).length} answered</span>
             </div>
             <div className="questionProgressTrack"><span style={{ width: `${((currentQuestion + 1) / quiz.length) * 100}%` }} /></div>
@@ -198,14 +298,16 @@ function QuizAssessment() {
               </div>
             </div>
             <div className="quizNavigation">
-              <button className="learningSecondaryButton" disabled={currentQuestion === 0} onClick={() => setCurrentQuestion((index) => index - 1)}>← Previous</button>
+              <button className="learningSecondaryButton" disabled={currentQuestion === 0} onClick={() => setCurrentQuestion((index) => index - 1)} type="button">← Previous</button>
               {currentQuestion < quiz.length - 1 ? (
-                <button className="learningPrimaryButton" onClick={() => setCurrentQuestion((index) => index + 1)}>Next question →</button>
+                <button className="learningPrimaryButton" onClick={() => setCurrentQuestion((index) => index + 1)} type="button">Next question →</button>
               ) : (
-                <button className="learningPrimaryButton" disabled={!isAnswered} onClick={finishQuiz}>Finish quiz <span>✓</span></button>
+                <button className="learningPrimaryButton" disabled={!allAnswered || savingAttempt} onClick={finishQuiz} type="button">
+                  {savingAttempt ? "Saving result…" : "Finish quiz"} {!savingAttempt && <span>✓</span>}
+                </button>
               )}
             </div>
-            {!isAnswered && currentQuestion === quiz.length - 1 && <p className="quizFinishHint">Answer all questions before finishing.</p>}
+            {!allAnswered && currentQuestion === quiz.length - 1 && <p className="quizFinishHint">Answer all questions before finishing.</p>}
           </section>
         )}
       </main>

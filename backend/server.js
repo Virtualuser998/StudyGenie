@@ -37,6 +37,10 @@ app.use(
    require("./routes/doubtRoutes")
   );
 
+  app.use(
+   "/api/quizzes",
+   require("./routes/quizRoutes")
+  );
 
 const PORT =
     process.env.PORT || 3001;
