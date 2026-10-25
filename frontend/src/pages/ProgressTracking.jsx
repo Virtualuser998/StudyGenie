@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import Sidebar from "../components/Sidebar";
 import Topbar from "../components/Topbar";
@@ -7,9 +7,20 @@ import "../styles/accountPages.css";
 const readArray = (key) => {
   try {
     const value = JSON.parse(localStorage.getItem(key) || "[]");
-    return Array.isArray(value) ? value : [];
+    return Array.isArray(value)
+      ? value.filter((item) => item && typeof item === "object" && !Array.isArray(item))
+      : [];
   } catch {
     return [];
+  }
+};
+
+const readSettings = () => {
+  try {
+    const value = JSON.parse(localStorage.getItem("studygenie-study-settings") || "{}");
+    return value && typeof value === "object" && !Array.isArray(value) ? value : {};
+  } catch {
+    return {};
   }
 };
 
@@ -27,46 +38,68 @@ function ProgressTracking() {
     localStorage.getItem("token") ? "" : "Sign in to see your saved quiz results."
   );
   const [historyReload, setHistoryReload] = useState(0);
-  const sessions = useMemo(() => readArray("studygenie-study-plan"), []);
-  const settings = useMemo(() => {
-    try {
-      return JSON.parse(localStorage.getItem("studygenie-study-settings") || "{}");
-    } catch {
-      return {};
-    }
-  }, []);
+  const [sessions, setSessions] = useState(() => readArray("studygenie-study-plan"));
+  const [settings, setSettings] = useState(readSettings);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) return undefined;
 
     let active = true;
-    axios.get("/api/quizzes/history", {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-      .then(({ data }) => {
+    const loadHistory = async () => {
+      try {
+        const { data } = await axios.get("/api/quizzes/history", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
         if (!active) return;
         setQuizzes(Array.isArray(data) ? data : []);
         setQuizHistoryError("");
-      })
-      .catch(() => {
+      } catch {
         if (active) setQuizHistoryError("Quiz results could not be loaded.");
-      })
-      .finally(() => {
+      } finally {
         if (active) setQuizHistoryLoading(false);
-      });
+      }
+    };
+
+    const reloadWhenVisible = () => {
+      if (document.visibilityState === "visible") loadHistory();
+    };
+    loadHistory();
+    window.addEventListener("focus", reloadWhenVisible);
+    document.addEventListener("visibilitychange", reloadWhenVisible);
 
     return () => {
       active = false;
+      window.removeEventListener("focus", reloadWhenVisible);
+      document.removeEventListener("visibilitychange", reloadWhenVisible);
     };
   }, [historyReload]);
 
+  useEffect(() => {
+    const syncLocalProgress = () => {
+      setSessions(readArray("studygenie-study-plan"));
+      setSettings(readSettings());
+    };
+
+    window.addEventListener("storage", syncLocalProgress);
+    window.addEventListener("focus", syncLocalProgress);
+    return () => {
+      window.removeEventListener("storage", syncLocalProgress);
+      window.removeEventListener("focus", syncLocalProgress);
+    };
+  }, []);
+
   const cutoff = period === "all" ? 0 : now - Number(period) * 24 * 60 * 60 * 1000;
+  const endOfToday = new Date(now);
+  endOfToday.setHours(23, 59, 59, 999);
   const filteredQuizzes = quizzes.filter((quiz) => {
     const date = new Date(quiz.date).getTime();
-    return Number.isFinite(date) && date >= cutoff;
+    return Number.isFinite(date) && date >= cutoff && date <= endOfToday.getTime();
   });
-  const filteredSessions = sessions.filter((session) => new Date(`${session.date}T12:00:00`).getTime() >= cutoff);
+  const filteredSessions = sessions.filter((session) => {
+    const date = new Date(`${session.date}T12:00:00`).getTime();
+    return Number.isFinite(date) && date >= cutoff && date <= endOfToday.getTime();
+  });
   const averageScore = filteredQuizzes.length
     ? Math.round(filteredQuizzes.reduce((sum, quiz) => sum + getScorePercent(quiz), 0) / filteredQuizzes.length)
     : 0;

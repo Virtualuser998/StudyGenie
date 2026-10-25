@@ -70,7 +70,10 @@ const isTransientAIError = (error) => {
 };
 
 const generateWithFallback = async (ai, prompt, config = {}) => {
-  const models = ["gemini-3.8-flash", "gemini-3.6-flash"];
+  const models = [...new Set([
+    process.env.GEMINI_MODEL || "gemini-3.8-flash",
+    "gemini-3.6-flash"
+  ])];
   let lastError;
 
   for (const model of models) {
@@ -422,7 +425,7 @@ router.post(
       const ai = new GoogleGenAI({
         apiKey: process.env.GEMINI_API_KEY,
         httpOptions: {
-          timeout: 30000,
+          timeout: 90000,
           retryOptions: { attempts: 1 }
         }
       });

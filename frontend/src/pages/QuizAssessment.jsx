@@ -186,6 +186,7 @@ function QuizAssessment() {
                     className="quizMaterialSelect"
                     id="quiz-material"
                     value={selectedMaterialId}
+                    disabled={generating}
                     onChange={(event) => {
                       setSelectedMaterialId(event.target.value);
                       setStudyKit(null);

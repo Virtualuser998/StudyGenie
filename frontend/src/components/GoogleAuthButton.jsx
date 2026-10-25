@@ -105,13 +105,16 @@ function GoogleAuthButton({
   }
 
   return (
-    <div
-      className={`googleAuthWidget${disabled ? " isDisabled" : ""}`}
-      ref={buttonRef}
-      aria-disabled={disabled}
-      aria-label="Google sign-in"
-    >
-      {status === "loading" && <span>Loading Google sign-in…</span>}
+    <div className="googleAuthBlock">
+      {status === "loading" && (
+        <p className="googleAuthLoading">Loading Google sign-in…</p>
+      )}
+      <div
+        className={`googleAuthWidget${disabled ? " isDisabled" : ""}`}
+        ref={buttonRef}
+        aria-disabled={disabled}
+        aria-label="Google sign-in"
+      />
     </div>
   );
 }

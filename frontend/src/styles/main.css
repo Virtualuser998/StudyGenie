@@ -495,9 +495,11 @@ a {
   pointer-events: none;
 }
 
-.googleAuthWidget > span {
+.googleAuthLoading {
+  margin: 20px 0 0;
   color: #73778d;
   font-size: 14px;
+  text-align: center;
 }
 
 .googleAuthNote {
