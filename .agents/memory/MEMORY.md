@@ -1,0 +1,1 @@
+- [Imported frontend dependencies](imported-frontend-dependencies.md) — Zip imports may carry platform-specific binaries and non-executable npm wrappers; validate dependencies before using scripts.

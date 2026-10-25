@@ -1,0 +1,1016 @@
+.learningMain {
+  min-width: 0;
+}
+
+.learningPageIntro {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  margin: 4px 0 25px;
+}
+
+.learningEyebrow {
+  display: inline-block;
+  margin-bottom: 8px;
+  color: #795fe1;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.3px;
+}
+
+.learningPageIntro h1 {
+  margin: 0;
+  color: #25223d;
+  font-size: 27px;
+}
+
+.learningPageIntro p {
+  margin: 7px 0 0;
+  color: #858699;
+  font-size: 13px;
+}
+
+.learningGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(280px, 0.85fr);
+  gap: 18px;
+}
+
+.learningCard {
+  min-width: 0;
+  padding: 22px;
+  border: 1px solid #ebeaf3;
+  border-radius: 16px;
+  background: white;
+  box-shadow: 0 5px 18px rgba(50, 44, 100, 0.05);
+}
+
+.learningCard h2 {
+  margin: 0;
+  color: #302d42;
+  font-size: 16px;
+}
+
+.learningCardSubheading {
+  margin: 5px 0 0;
+  color: #9694a5;
+  font-size: 11px;
+}
+
+.learningCardTitleRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.learningIcon,
+.learningTitleIcon,
+.calendarTitleIcon,
+.addSessionIcon {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 12px;
+  background: #f0ecff;
+  color: #6748d7;
+  font-size: 20px;
+}
+
+.learningPrimaryButton,
+.learningSecondaryButton {
+  display: inline-flex;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border: 0;
+  border-radius: 9px;
+  padding: 0 16px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+
+.learningPrimaryButton {
+  background: linear-gradient(100deg, #7048e8, #5a32d8);
+  color: white;
+  box-shadow: 0 5px 12px rgba(91, 53, 214, 0.16);
+}
+
+.learningPrimaryButton:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 16px rgba(91, 53, 214, 0.23);
+}
+
+.learningSecondaryButton {
+  border: 1px solid #e5e1f2;
+  background: white;
+  color: #5e4bb2;
+}
+
+.learningSecondaryButton:hover:not(:disabled) {
+  background: #f7f5ff;
+}
+
+.learningPrimaryButton:disabled,
+.learningSecondaryButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
+.quizSetupCard {
+  padding: 27px;
+}
+
+.learningCardHeading {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 28px;
+}
+
+.learningCardHeading h2 {
+  margin-bottom: 5px;
+}
+
+.learningCardHeading p {
+  margin: 0;
+  color: #92909f;
+  font-size: 12px;
+}
+
+.learningLabel,
+.sessionForm label {
+  display: block;
+  margin-bottom: 9px;
+  color: #555268;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.subjectOptions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 22px;
+}
+
+.subjectOption {
+  display: flex;
+  min-height: 120px;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 7px;
+  border: 1px solid #eae8f2;
+  border-radius: 12px;
+  padding: 14px;
+  background: white;
+  color: #353249;
+  text-align: left;
+  cursor: pointer;
+  transition: 160ms ease;
+}
+
+.subjectOption:hover,
+.subjectOption.selected {
+  border-color: #8c75e7;
+  background: #f8f6ff;
+  box-shadow: 0 0 0 3px rgba(98, 70, 217, 0.07);
+}
+
+.subjectOption > span {
+  font-size: 20px;
+}
+
+.subjectOption strong {
+  font-size: 12px;
+}
+
+.subjectOption small {
+  color: #9996a8;
+  font-size: 9px;
+}
+
+.quizSetupCard > .learningPrimaryButton {
+  width: 100%;
+}
+
+.quizNote {
+  margin-top: 15px;
+  color: #8b8998;
+  font-size: 10px;
+  text-align: center;
+}
+
+.quizNote span {
+  margin-right: 4px;
+  color: #785de1;
+}
+
+.practiceScore {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 7px 0 18px;
+  border-bottom: 1px solid #f0eef5;
+}
+
+.scoreRing {
+  display: grid;
+  width: 66px;
+  height: 66px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 50%;
+  background: conic-gradient(#6d4bdf var(--score), #efedf7 0);
+  position: relative;
+}
+
+.scoreRing::before {
+  position: absolute;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: white;
+  content: "";
+}
+
+.scoreRing strong {
+  position: relative;
+  color: #45378b;
+  font-size: 13px;
+}
+
+.practiceScore > div:last-child {
+  display: grid;
+  gap: 5px;
+}
+
+.practiceScore > div:last-child strong,
+.recentQuizHeader strong {
+  color: #444154;
+  font-size: 11px;
+}
+
+.practiceScore > div:last-child span {
+  color: #a09eab;
+  font-size: 10px;
+}
+
+.practiceStats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 18px 0;
+}
+
+.practiceStats > div {
+  display: grid;
+  gap: 4px;
+}
+
+.practiceStats strong {
+  color: #302d42;
+  font-size: 20px;
+}
+
+.practiceStats span {
+  color: #9694a5;
+  font-size: 10px;
+}
+
+.recentQuizHeader {
+  padding: 15px 0 8px;
+  border-top: 1px solid #f0eef5;
+}
+
+.quizHistoryList {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.quizHistoryList li {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 0;
+}
+
+.quizHistoryDot {
+  display: grid;
+  width: 27px;
+  height: 27px;
+  place-items: center;
+  border-radius: 8px;
+  background: #effbf5;
+  color: #2b9e70;
+  font-size: 11px;
+}
+
+.quizHistoryList li > span:nth-child(2) {
+  display: grid;
+  flex: 1;
+  gap: 3px;
+}
+
+.quizHistoryList strong {
+  color: #514e61;
+  font-size: 10px;
+}
+
+.quizHistoryList small {
+  color: #a19eae;
+  font-size: 9px;
+}
+
+.quizHistoryList li > b {
+  color: #6250b2;
+  font-size: 10px;
+}
+
+.learningEmptyNote {
+  margin: 7px 0 0;
+  color: #a09eac;
+  font-size: 10px;
+}
+
+.activeQuizCard {
+  max-width: 850px;
+  margin: 0 auto;
+  padding: 28px;
+}
+
+.quizProgressHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.quizProgressHeader h2 {
+  font-size: 20px;
+}
+
+.quizProgressHeader h2 span {
+  color: #9694a5;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.quizQuestionCount,
+.sessionCountBadge {
+  padding: 7px 10px;
+  border-radius: 20px;
+  background: #f1effa;
+  color: #6854bf;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.questionProgressTrack,
+.resultBar {
+  height: 7px;
+  overflow: hidden;
+  border-radius: 10px;
+  background: #efedf6;
+}
+
+.questionProgressTrack {
+  margin: 18px 0 30px;
+}
+
+.questionProgressTrack span,
+.resultBar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #8168e7, #5e39d8);
+  transition: width 220ms ease;
+}
+
+.questionContent {
+  min-height: 310px;
+}
+
+.questionNumber {
+  color: #917de1;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.questionContent h3 {
+  margin: 12px 0 22px;
+  color: #302d42;
+  font-size: 20px;
+  line-height: 1.45;
+}
+
+.quizAnswerOptions {
+  display: grid;
+  gap: 10px;
+}
+
+.quizAnswerOption {
+  display: flex;
+  min-height: 52px;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid #eae8f2;
+  border-radius: 10px;
+  padding: 10px 14px;
+  background: white;
+  color: #565367;
+  font: inherit;
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+  transition: 150ms ease;
+}
+
+.quizAnswerOption:hover {
+  border-color: #b3a6ec;
+  background: #fbfaff;
+}
+
+.quizAnswerOption.chosen {
+  border-color: #8068df;
+  background: #f7f5ff;
+  color: #493a9c;
+  box-shadow: 0 0 0 2px rgba(98, 70, 217, 0.07);
+}
+
+.answerLetter {
+  display: grid;
+  width: 27px;
+  height: 27px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 8px;
+  background: #f2f0f8;
+  color: #79758e;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.chosen .answerLetter {
+  background: #e9e4ff;
+  color: #6348d1;
+}
+
+.answerCheck {
+  margin-left: auto;
+  color: #6548d2;
+  font-weight: 800;
+}
+
+.quizNavigation {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding-top: 19px;
+  border-top: 1px solid #efedf5;
+}
+
+.quizFinishHint {
+  margin: 10px 0 0;
+  color: #9b97a8;
+  font-size: 10px;
+  text-align: right;
+}
+
+.quizResultCard {
+  max-width: 850px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.resultIllustration {
+  display: grid;
+  width: 65px;
+  height: 65px;
+  margin: 0 auto 14px;
+  place-items: center;
+  border-radius: 20px;
+  background: #f1edff;
+  font-size: 30px;
+}
+
+.quizResultCard > h2 {
+  margin: 0;
+  font-size: 23px;
+}
+
+.quizResultCard > p {
+  color: #898697;
+  font-size: 12px;
+}
+
+.quizResultCard > p strong {
+  color: #6246d9;
+}
+
+.resultBar {
+  max-width: 340px;
+  margin: 20px auto 8px;
+}
+
+.resultPercent {
+  color: #6250b2;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.resultActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 9px;
+  margin: 18px 0 26px;
+}
+
+.answerReviewList {
+  display: grid;
+  gap: 10px;
+  text-align: left;
+}
+
+.answerReviewItem {
+  border: 1px solid #efedf5;
+  border-radius: 11px;
+  padding: 14px;
+  background: #fcfbfe;
+}
+
+.reviewQuestionTitle {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  color: #39364c;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.reviewMark {
+  display: grid;
+  width: 21px;
+  height: 21px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 50%;
+  font-size: 11px;
+}
+
+.reviewMark.correct {
+  background: #e8f8f0;
+  color: #229467;
+}
+
+.reviewMark.incorrect {
+  background: #fff0f0;
+  color: #d15e63;
+}
+
+.answerReviewItem p {
+  margin: 9px 0 0 30px;
+  color: #8d899a;
+  font-size: 10px;
+}
+
+.answerReviewItem p b {
+  color: #554f69;
+}
+
+.answerReviewItem small {
+  display: block;
+  margin: 8px 0 0 30px;
+  color: #8b8797;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.plannerIntro {
+  align-items: flex-end;
+}
+
+.plannerWeekActions {
+  display: flex;
+  gap: 8px;
+}
+
+.plannerWeekActions .learningSecondaryButton {
+  min-width: 42px;
+  padding: 0 12px;
+}
+
+.plannerStatsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 17px;
+}
+
+.plannerStatCard {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  min-width: 0;
+  border: 1px solid #ebeaf3;
+  border-radius: 14px;
+  padding: 16px;
+  background: white;
+  box-shadow: 0 4px 14px rgba(50, 44, 100, 0.04);
+}
+
+.plannerStatIcon {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 12px;
+  font-size: 17px;
+}
+
+.plannerStatIcon.lavender {
+  background: #f0ecff;
+  color: #6a4ed7;
+}
+
+.plannerStatIcon.mint {
+  background: #eaf9f2;
+  color: #29956b;
+}
+
+.plannerStatIcon.peach {
+  background: #fff3e8;
+  color: #cb8446;
+}
+
+.plannerStatCard > div {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+
+.plannerStatCard strong {
+  overflow: hidden;
+  color: #302d42;
+  font-size: 19px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.plannerStatCard span:last-child {
+  color: #92909f;
+  font-size: 10px;
+}
+
+.weekCalendarCard {
+  margin-bottom: 17px;
+  padding: 19px 22px;
+}
+
+.weekCalendarCard .learningCardTitleRow {
+  margin-bottom: 15px;
+}
+
+.calendarTitleIcon {
+  width: 36px;
+  height: 36px;
+  font-size: 16px;
+}
+
+.weekDayGrid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.weekDayButton {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid transparent;
+  border-radius: 11px;
+  padding: 11px 5px 8px;
+  background: #faf9fd;
+  color: #858294;
+  cursor: pointer;
+  transition: 150ms ease;
+}
+
+.weekDayButton:hover {
+  border-color: #ded7fa;
+}
+
+.weekDayButton > span {
+  font-size: 10px;
+}
+
+.weekDayButton > strong {
+  color: #49465a;
+  font-size: 14px;
+}
+
+.weekDayButton > i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: transparent;
+}
+
+.weekDayButton > i.hasSessions {
+  background: #8a72e3;
+}
+
+.weekDayButton.selected {
+  border-color: #765bdf;
+  background: #f2efff;
+  color: #684fd0;
+}
+
+.weekDayButton.selected > strong {
+  color: #543cc0;
+}
+
+.weekDayButton.isToday:not(.selected) > span {
+  color: #7257d5;
+  font-weight: 800;
+}
+
+.plannerContentGrid {
+  grid-template-columns: minmax(0, 1.25fr) minmax(285px, 0.9fr);
+}
+
+.sessionListCard,
+.addSessionCard {
+  padding: 20px;
+}
+
+.sessionListCard .learningCardTitleRow,
+.addSessionCard .learningCardTitleRow {
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.sessionCountBadge {
+  white-space: nowrap;
+}
+
+.sessionList {
+  display: grid;
+}
+
+.studySession {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-top: 1px solid #f0eef5;
+  padding: 14px 0;
+}
+
+.sessionCheckButton {
+  display: grid;
+  width: 22px;
+  height: 22px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid #d8d4e6;
+  border-radius: 7px;
+  background: white;
+  color: white;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.studySession.completed .sessionCheckButton {
+  border-color: #36a879;
+  background: #36a879;
+}
+
+.sessionTime {
+  display: grid;
+  min-width: 55px;
+  gap: 4px;
+  color: #545064;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.sessionTime span {
+  color: #a09eac;
+  font-size: 9px;
+  font-weight: 400;
+}
+
+.sessionDetails {
+  display: grid;
+  min-width: 0;
+  flex: 1;
+  gap: 4px;
+}
+
+.sessionDetails strong {
+  overflow: hidden;
+  color: #484557;
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sessionDetails span {
+  color: #8270d2;
+  font-size: 9px;
+}
+
+.studySession.completed .sessionDetails strong {
+  color: #9996a4;
+  text-decoration: line-through;
+}
+
+.removeSessionButton {
+  width: 27px;
+  height: 27px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: #aaa6b5;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.removeSessionButton:hover {
+  background: #fff1f1;
+  color: #cf6464;
+}
+
+.plannerEmptyState {
+  display: flex;
+  min-height: 180px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-top: 1px solid #f0eef5;
+  text-align: center;
+}
+
+.plannerEmptyState > span {
+  margin-bottom: 8px;
+  font-size: 25px;
+}
+
+.plannerEmptyState strong {
+  color: #514d62;
+  font-size: 12px;
+}
+
+.plannerEmptyState p {
+  max-width: 230px;
+  margin: 6px 0 0;
+  color: #9b98a7;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.addSessionIcon {
+  width: 34px;
+  height: 34px;
+  font-size: 19px;
+}
+
+.sessionForm {
+  display: grid;
+  gap: 8px;
+}
+
+.sessionForm input,
+.sessionForm select {
+  width: 100%;
+  min-width: 0;
+  height: 39px;
+  margin-bottom: 7px;
+  border: 1px solid #e5e2ed;
+  border-radius: 8px;
+  padding: 0 10px;
+  outline: none;
+  background: white;
+  color: #514d61;
+  font: inherit;
+  font-size: 10px;
+}
+
+.sessionForm input:focus,
+.sessionForm select:focus {
+  border-color: #8068df;
+  box-shadow: 0 0 0 3px rgba(98, 70, 217, 0.08);
+}
+
+.sessionFormRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.sessionFormRow > div {
+  min-width: 0;
+}
+
+.sessionForm .learningPrimaryButton {
+  width: 100%;
+  margin-top: 4px;
+}
+
+@media (max-width: 1100px) {
+  .learningGrid,
+  .plannerContentGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .learningPageIntro {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .subjectOptions {
+    grid-template-columns: 1fr;
+  }
+
+  .subjectOption {
+    min-height: 78px;
+    display: grid;
+    grid-template-columns: 32px 1fr;
+    align-content: center;
+  }
+
+  .subjectOption > span {
+    grid-row: span 2;
+  }
+
+  .subjectOption small {
+    grid-column: 2;
+  }
+
+  .plannerStatsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .plannerStatCard {
+    padding: 12px 14px;
+  }
+
+  .plannerStatIcon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .weekDayGrid {
+    gap: 4px;
+  }
+
+  .weekDayButton {
+    padding: 9px 2px 6px;
+  }
+
+  .weekDayButton > span {
+    font-size: 9px;
+  }
+
+  .weekDayButton > strong {
+    font-size: 12px;
+  }
+
+  .quizNavigation {
+    align-items: stretch;
+  }
+
+  .quizNavigation button {
+    padding: 0 10px;
+    font-size: 10px;
+  }
+
+  .activeQuizCard,
+  .quizSetupCard,
+  .quizResultCard {
+    padding: 18px;
+  }
+
+  .questionContent h3 {
+    font-size: 17px;
+  }
+}
