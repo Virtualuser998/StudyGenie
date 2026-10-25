@@ -3,6 +3,12 @@ const { GoogleGenAI } = require("@google/genai");
 const Doubt = require("../models/Doubt");
 const authMiddleware = require("../middleware/authMiddleware");
 const router = express.Router();
+const geminiModel = () => {
+  const configuredModel = process.env.GEMINI_MODEL?.trim();
+  return /^gemini-[a-z0-9.-]+$/i.test(configuredModel || "")
+    ? configuredModel
+    : "gemini-3.8-flash";
+};
 
 // =====================================
 // NORMALIZE QUESTION
@@ -87,7 +93,7 @@ Instructions:
     const response =
       await ai.models.generateContent({
         model:
-          process.env.GEMINI_MODEL,
+          geminiModel(),
         contents:
           prompt
       });

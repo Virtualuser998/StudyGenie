@@ -126,7 +126,7 @@ const handleAIFileChange = async (e) => {
     const response =
       await axios.post(
 
-        "http://localhost:5000/api/ai/extract-file",
+        "/api/ai/extract-file",
 
         formData,
 
@@ -192,7 +192,7 @@ const handleAIFileChange = async (e) => {
         return;
       }
       const response = await axios.get(
-        "http://localhost:5000/api/ai/notes",
+        "/api/ai/notes",
         {
           headers: {
             Authorization: `Bearer ${token}`
@@ -260,7 +260,7 @@ const handleAIFileChange = async (e) => {
 
 
       const response = await axios.post(
-        "http://localhost:5000/api/ai/generate-notes",
+        "/api/ai/generate-notes",
         
      {
   text: pastedText,
@@ -474,7 +474,7 @@ const handleDeleteRecentNote = async (note) => {
 
     const response =
       await axios.delete(
-        `http://localhost:5000/api/ai/notes/${note._id}`,
+        `/api/ai/notes/${note._id}`,
         {
           headers: {
             Authorization:

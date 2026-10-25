@@ -30,7 +30,7 @@ function StudyMaterials() {
       }
 
       const response = await axios.get(
-        "http://localhost:5000/api/materials",
+        "/api/materials",
         {
           headers: {
             Authorization: `Bearer ${token}`
@@ -106,7 +106,7 @@ function StudyMaterials() {
 );
      
       const response = await axios.post(
-        "http://localhost:5000/api/materials/upload",
+        "/api/materials/upload",
         formData,
         {
           headers: {
@@ -164,7 +164,7 @@ function StudyMaterials() {
 
 
       const response = await axios.get(
-        `http://localhost:5000/api/materials/${material._id}/download`,
+        `/api/materials/${material._id}/download`,
         {
           headers: {
             Authorization: `Bearer ${token}`
@@ -224,7 +224,7 @@ function StudyMaterials() {
     }
 
     const response = await axios.delete(
-      `http://localhost:5000/api/materials/${material._id}`,
+      `/api/materials/${material._id}`,
       {
         headers: {
           Authorization: `Bearer ${token}`

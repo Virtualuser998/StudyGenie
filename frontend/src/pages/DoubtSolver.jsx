@@ -58,7 +58,7 @@ function DoubtSolver() {
 
       const response =
         await axios.get(
-          "http://localhost:5000/api/doubts",
+          "/api/doubts",
           {
             headers: {
               Authorization:
@@ -186,7 +186,7 @@ function DoubtSolver() {
       const response =
         await axios.post(
 
-          "http://localhost:5000/api/doubts/ask",
+          "/api/doubts/ask",
 
           {
             question:
@@ -401,7 +401,7 @@ function DoubtSolver() {
         const response =
           await axios.delete(
 
-            `http://localhost:5000/api/doubts/${doubt._id}`,
+            `/api/doubts/${doubt._id}`,
 
             {
               headers: {

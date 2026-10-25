@@ -50,3 +50,8 @@ externalPort = 3001
 [[ports]]
 localPort = 5000
 externalPort = 80
+
+[userenv]
+
+[userenv.shared]
+GEMINI_MODEL = "gemini-3.8-flash"
