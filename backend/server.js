@@ -4,7 +4,6 @@ const dotenv = require("dotenv");
 const connectDB = require("./config/db");
 
 dotenv.config();
-connectDB();
 const app = express();
 
 app.use(cors());
@@ -42,11 +41,18 @@ app.use(
    require("./routes/quizRoutes")
   );
 
-const PORT =
-    process.env.PORT || 3001;
+const PORT = process.env.PORT || 3001;
 
-app.listen(PORT,() => {
-        console.log(
-            `Server running on http://localhost:${PORT}`
-        );
-    });
+const startServer = async () => {
+    try {
+        await connectDB();
+        app.listen(PORT, () => {
+            console.log(`Server running on http://localhost:${PORT}`);
+        });
+    } catch (error) {
+        console.error("Backend did not start. Check the MongoDB connection settings.");
+        process.exit(1);
+    }
+};
+
+startServer();

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import GoogleAuthButton from "../components/GoogleAuthButton";
 
 function Register() {
 
@@ -16,6 +17,26 @@ function Register() {
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState("error");
   const [loading, setLoading] = useState(false);
+
+  const handleGoogleRegister = async (credential) => {
+    setMessage("");
+    setLoading(true);
+
+    try {
+      const response = await axios.post("/api/auth/google", { credential });
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("user", JSON.stringify(response.data.user));
+      navigate("/dashboard");
+    } catch (error) {
+      setMessage(
+        error.response?.data?.message ||
+        "Unable to register with Google. Please try again."
+      );
+      setMessageType("error");
+    } finally {
+      setLoading(false);
+    }
+  };
 
 
   const handleChange = (e) => {
@@ -137,6 +158,15 @@ function Register() {
             Fill in the details to get started
           </p>
 
+          <GoogleAuthButton
+            onCredential={handleGoogleRegister}
+            buttonText="signup_with"
+            disabled={loading}
+          />
+
+          <div className="authDivider">
+            <span>or register with email</span>
+          </div>
 
           <label htmlFor="register-name">
             Full Name

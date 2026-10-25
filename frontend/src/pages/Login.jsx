@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
+import GoogleAuthButton from "../components/GoogleAuthButton";
 
 function Login() {
 
@@ -16,6 +17,10 @@ function Login() {
     useState("");
   const [loading, setLoading] = useState(false);
 
+  const storeSession = (data) => {
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("user", JSON.stringify(data.user));
+  };
 
   const handleLogin = async (e) => {
 
@@ -29,24 +34,12 @@ function Login() {
         await axios.post(
           "/api/auth/login",
           {
-            email,
+            email: email.trim().toLowerCase(),
             password
           }
         );
 
-
-      localStorage.setItem(
-        "token",
-        response.data.token
-      );
-
-
-      localStorage.setItem(
-        "user",
-        JSON.stringify(response.data.user)
-      );
-
-
+      storeSession(response.data);
       navigate("/dashboard");
 
 
@@ -61,6 +54,24 @@ function Login() {
       setLoading(false);
     }
 
+  };
+
+  const handleGoogleLogin = async (credential) => {
+    setMessage("");
+    setLoading(true);
+
+    try {
+      const response = await axios.post("/api/auth/google", { credential });
+      storeSession(response.data);
+      navigate("/dashboard");
+    } catch (error) {
+      setMessage(
+        error.response?.data?.message ||
+        "Unable to sign in with Google. Please try again."
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
 
@@ -110,6 +121,15 @@ function Login() {
             Login to continue your learning journey
           </p>
 
+          <GoogleAuthButton
+            onCredential={handleGoogleLogin}
+            buttonText="signin_with"
+            disabled={loading}
+          />
+
+          <div className="authDivider">
+            <span>or continue with email</span>
+          </div>
 
           <label htmlFor="login-email">
             Email Address

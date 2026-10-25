@@ -481,6 +481,49 @@ a {
   color: #73778d;
 }
 
+.googleAuthWidget {
+  display: flex;
+  min-height: 44px;
+  margin-top: 22px;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.googleAuthWidget.isDisabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.googleAuthWidget > span {
+  color: #73778d;
+  font-size: 14px;
+}
+
+.googleAuthNote {
+  margin: 20px 0 0;
+  color: #73778d;
+  font-size: 13px;
+  text-align: center;
+}
+
+.authDivider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0 8px;
+  color: #8b8ea0;
+  font-size: 12px;
+}
+
+.authDivider::before,
+.authDivider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #e7e4f3;
+}
+
 .authCard label {
   display: block;
 

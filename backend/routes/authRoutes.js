@@ -1,13 +1,37 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { OAuth2Client } = require("google-auth-library");
 const User = require("../models/User");
 const authMiddleware = require("../middleware/authMiddleware");
 const router = express.Router();
+const googleClient = new OAuth2Client();
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const jwtSigningKey = () => process.env.JWT_SECRET || process.env.SESSION_SECRET;
+
+const sendUserSession = (res, user) => {
+    const secret = jwtSigningKey();
+    if (!secret) {
+        return res.status(503).json({
+            message: "Authentication is not configured"
+        });
+    }
+
+    const token = jwt.sign({ id: user._id }, secret, { expiresIn: "1d" });
+    return res.json({
+        message: "Login Successful",
+        token,
+        user: {
+            id: user._id,
+            name: user.name,
+            email: user.email,
+            course: user.course || "B.Sc. IT",
+            studyYear: user.studyYear || "TY"
+        }
+    });
+};
 
 // REGISTER
 
@@ -163,6 +187,11 @@ router.post(
 
             }
 
+            if (!user.password) {
+                return res.status(401).json({
+                    message: "This account uses Google sign-in. Continue with Google."
+                });
+            }
 
             const passwordMatch =
                 await bcrypt.compare(
@@ -182,43 +211,7 @@ router.post(
 
             }
 
-
-            const secret = jwtSigningKey();
-            if (!secret) {
-                return res.status(503).json({
-                    message: "Authentication is not configured"
-                });
-            }
-
-            const token =
-                jwt.sign(
-                    {
-                        id: user._id
-                    },
-                    secret,
-                    {
-                        expiresIn: "1d"
-                    }
-                );
-
-
-            res.json({
-
-                message:
-                    "Login Successful",
-
-                token,
-
-                user: {
-                    id: user._id,
-                    name: user.name,
-                    email: user.email,
-                    course: user.course || "B.Sc. IT",
-                    studyYear: user.studyYear || "TY"
-                }
-
-            });
-
+            return sendUserSession(res, user);
 
         } catch (error) {
 
@@ -235,6 +228,72 @@ router.post(
 
     }
 );
+
+router.get("/google/config", (_req, res) => {
+    res.json({
+        clientId: process.env.GOOGLE_CLIENT_ID || null
+    });
+});
+
+router.post("/google", async (req, res) => {
+    const { credential } = req.body || {};
+    const clientId = process.env.GOOGLE_CLIENT_ID;
+
+    if (!clientId) {
+        return res.status(503).json({
+            message: "Google sign-in is not configured yet"
+        });
+    }
+    if (typeof credential !== "string" || !credential) {
+        return res.status(400).json({ message: "Google credential is required" });
+    }
+
+    let payload;
+    try {
+        const ticket = await googleClient.verifyIdToken({
+            idToken: credential,
+            audience: clientId
+        });
+        payload = ticket.getPayload();
+    } catch {
+        return res.status(401).json({ message: "Google sign-in could not be verified" });
+    }
+
+    if (
+        !payload?.sub ||
+        payload.email_verified !== true ||
+        typeof payload.email !== "string" ||
+        !emailPattern.test(payload.email)
+    ) {
+        return res.status(401).json({ message: "Google account email is not verified" });
+    }
+
+    try {
+        const cleanEmail = payload.email.trim().toLowerCase();
+        let user = await User.findOne({
+            email: {
+                $regex: `^${escapeRegex(cleanEmail)}$`,
+                $options: "i"
+            }
+        });
+
+        if (!user) {
+            const googleName = typeof payload.name === "string" ? payload.name.trim() : "";
+            const name = googleName.length >= 2
+                ? googleName.slice(0, 80)
+                : cleanEmail.split("@")[0].slice(0, 80);
+            user = await User.create({ name, email: cleanEmail });
+        }
+
+        return sendUserSession(res, user);
+    } catch (error) {
+        console.error("Google account sign-in failed:", error.message);
+        if (error.code === 11000) {
+            return res.status(409).json({ message: "An account already exists for this email" });
+        }
+        return res.status(500).json({ message: "Google sign-in failed. Please try again." });
+    }
+});
 
 router.get("/me", authMiddleware, async (req, res) => {
     try {
