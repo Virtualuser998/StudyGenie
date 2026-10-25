@@ -22,6 +22,7 @@ function QuizAssessment() {
   const [reviewAnswers, setReviewAnswers] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [savingAttempt, setSavingAttempt] = useState(false);
+  const [canRetryGeneration, setCanRetryGeneration] = useState(false);
   const [error, setError] = useState(
     hasToken ? "" : "Sign in to use your uploaded study materials."
   );
@@ -34,7 +35,7 @@ function QuizAssessment() {
       return () => { active = false; };
     }
 
-    Promise.all([
+    Promise.allSettled([
       axios.get("/api/materials", {
         headers: { Authorization: `Bearer ${token}` }
       }),
@@ -42,16 +43,22 @@ function QuizAssessment() {
         headers: { Authorization: `Bearer ${token}` }
       })
     ])
-      .then(([materialsResponse, historyResponse]) => {
+      .then(([materialsResult, historyResult]) => {
         if (!active) return;
-        const allMaterials = Array.isArray(materialsResponse.data) ? materialsResponse.data : [];
-        const supportedMaterials = allMaterials.filter((material) => SUPPORTED_MATERIAL.test(material.originalName || ""));
-        setMaterials(supportedMaterials);
-        setSelectedMaterialId(supportedMaterials[0]?._id || "");
-        setHistory(Array.isArray(historyResponse.data) ? historyResponse.data : []);
-      })
-      .catch(() => {
-        if (active) setError("Could not load your study materials and quiz history. Please try again.");
+        if (materialsResult.status === "fulfilled") {
+          const allMaterials = Array.isArray(materialsResult.value.data) ? materialsResult.value.data : [];
+          const supportedMaterials = allMaterials.filter((material) => SUPPORTED_MATERIAL.test(material.originalName || ""));
+          setMaterials(supportedMaterials);
+          setSelectedMaterialId(supportedMaterials[0]?._id || "");
+        } else {
+          setError("Could not load your study materials. Please try again.");
+        }
+
+        if (historyResult.status === "fulfilled") {
+          setHistory(Array.isArray(historyResult.value.data) ? historyResult.value.data : []);
+        } else if (materialsResult.status === "fulfilled") {
+          setError("Your study materials loaded, but quiz history could not be loaded.");
+        }
       })
       .finally(() => {
         if (active) setMaterialsLoading(false);
@@ -73,6 +80,7 @@ function QuizAssessment() {
     const token = localStorage.getItem("token");
     setGenerating(true);
     setError("");
+    setCanRetryGeneration(false);
     setStudyKit(null);
 
     try {
@@ -84,6 +92,7 @@ function QuizAssessment() {
       setStudyKit(response.data);
     } catch (requestError) {
       setError(requestError.response?.data?.message || "Could not generate your study kit. Please try again.");
+      setCanRetryGeneration(true);
     } finally {
       setGenerating(false);
     }
@@ -107,6 +116,7 @@ function QuizAssessment() {
     const token = localStorage.getItem("token");
     setSavingAttempt(true);
     setError("");
+    setCanRetryGeneration(false);
 
     try {
       const response = await axios.post(
@@ -147,7 +157,14 @@ function QuizAssessment() {
           )}
         </section>
 
-        {error && <div className="quizErrorNotice" role="alert">{error}</div>}
+        {error && (
+          <div className="quizErrorNotice" role="alert">
+            <span>{error}</span>
+            {canRetryGeneration && selectedMaterial && !generating && !quiz && (
+              <button type="button" onClick={generateStudyKit}>Try again</button>
+            )}
+          </div>
+        )}
 
         {!quiz ? (
           <div className="learningGrid quizLandingGrid">
@@ -173,6 +190,7 @@ function QuizAssessment() {
                       setSelectedMaterialId(event.target.value);
                       setStudyKit(null);
                       setError("");
+                      setCanRetryGeneration(false);
                     }}
                   >
                     {materials.map((material) => (
@@ -237,7 +255,7 @@ function QuizAssessment() {
                     <h2>{studyKit.material?.originalName || selectedMaterial?.originalName}</h2>
                   </div>
                   <button className="learningPrimaryButton" onClick={startQuiz} type="button">
-                    Start 5-question quiz <span aria-hidden="true">→</span>
+                    Start {studyKit.questions.length}-question quiz <span aria-hidden="true">→</span>
                   </button>
                 </div>
                 <div className="quizSummaryContent"><ReactMarkdown>{studyKit.summary}</ReactMarkdown></div>

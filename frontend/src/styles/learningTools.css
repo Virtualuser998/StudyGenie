@@ -250,6 +250,10 @@
 }
 
 .quizErrorNotice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
   margin: 0 0 18px;
   border: 1px solid #f0d5c9;
   border-radius: 10px;
@@ -257,6 +261,22 @@
   background: #fff8f4;
   color: #8c4c35;
   font-size: 12px;
+}
+
+.quizErrorNotice button {
+  flex: 0 0 auto;
+  border: 1px solid #dcb5a6;
+  border-radius: 7px;
+  padding: 7px 11px;
+  background: white;
+  color: #8c4c35;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.quizErrorNotice button:hover {
+  background: #fff1e9;
 }
 
 .quizSummaryCard {

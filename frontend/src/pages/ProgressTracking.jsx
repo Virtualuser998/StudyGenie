@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import axios from "axios";
 import Sidebar from "../components/Sidebar";
 import Topbar from "../components/Topbar";
 import "../styles/accountPages.css";
@@ -12,10 +13,20 @@ const readArray = (key) => {
   }
 };
 
+const getScorePercent = (quiz) => {
+  const total = Number(quiz.total);
+  return total > 0 ? (Number(quiz.score) / total) * 100 : 0;
+};
+
 function ProgressTracking() {
   const [period, setPeriod] = useState("30");
   const [now] = useState(() => Date.now());
-  const quizzes = useMemo(() => readArray("studygenie-quiz-history"), []);
+  const [quizzes, setQuizzes] = useState([]);
+  const [quizHistoryLoading, setQuizHistoryLoading] = useState(Boolean(localStorage.getItem("token")));
+  const [quizHistoryError, setQuizHistoryError] = useState(
+    localStorage.getItem("token") ? "" : "Sign in to see your saved quiz results."
+  );
+  const [historyReload, setHistoryReload] = useState(0);
   const sessions = useMemo(() => readArray("studygenie-study-plan"), []);
   const settings = useMemo(() => {
     try {
@@ -25,11 +36,39 @@ function ProgressTracking() {
     }
   }, []);
 
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return undefined;
+
+    let active = true;
+    axios.get("/api/quizzes/history", {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(({ data }) => {
+        if (!active) return;
+        setQuizzes(Array.isArray(data) ? data : []);
+        setQuizHistoryError("");
+      })
+      .catch(() => {
+        if (active) setQuizHistoryError("Quiz results could not be loaded.");
+      })
+      .finally(() => {
+        if (active) setQuizHistoryLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [historyReload]);
+
   const cutoff = period === "all" ? 0 : now - Number(period) * 24 * 60 * 60 * 1000;
-  const filteredQuizzes = quizzes.filter((quiz) => new Date(quiz.date).getTime() >= cutoff);
+  const filteredQuizzes = quizzes.filter((quiz) => {
+    const date = new Date(quiz.date).getTime();
+    return Number.isFinite(date) && date >= cutoff;
+  });
   const filteredSessions = sessions.filter((session) => new Date(`${session.date}T12:00:00`).getTime() >= cutoff);
   const averageScore = filteredQuizzes.length
-    ? Math.round(filteredQuizzes.reduce((sum, quiz) => sum + (quiz.score / quiz.total) * 100, 0) / filteredQuizzes.length)
+    ? Math.round(filteredQuizzes.reduce((sum, quiz) => sum + getScorePercent(quiz), 0) / filteredQuizzes.length)
     : 0;
   const minutesStudied = filteredSessions
     .filter((session) => session.done)
@@ -49,7 +88,7 @@ function ProgressTracking() {
       const subject = quiz.subject || "Other";
       result[subject] ||= { attempts: 0, score: 0 };
       result[subject].attempts += 1;
-      result[subject].score += (quiz.score / quiz.total) * 100;
+      result[subject].score += getScorePercent(quiz);
       return result;
     }, {}),
   )
@@ -101,10 +140,28 @@ function ProgressTracking() {
           </label>
         </section>
 
+        {quizHistoryError && (
+          <div className="progressLoadNotice" role="alert">
+            <span>{quizHistoryError}</span>
+            {localStorage.getItem("token") && (
+              <button
+                type="button"
+                onClick={() => {
+                  setQuizHistoryLoading(true);
+                  setQuizHistoryError("");
+                  setHistoryReload((value) => value + 1);
+                }}
+              >
+                Retry
+              </button>
+            )}
+          </div>
+        )}
+
         <section className="accountMetricGrid" aria-label="Learning summary">
           <article className="accountMetricCard">
             <span className="accountMetricIcon purple">✦</span>
-            <div><span>Quiz accuracy</span><strong>{filteredQuizzes.length ? `${averageScore}%` : "—"}</strong><small>{filteredQuizzes.length} {filteredQuizzes.length === 1 ? "attempt" : "attempts"}</small></div>
+            <div><span>Quiz accuracy</span><strong>{quizHistoryLoading ? "…" : filteredQuizzes.length ? `${averageScore}%` : "—"}</strong><small>{quizHistoryLoading ? "Loading quiz history…" : `${filteredQuizzes.length} ${filteredQuizzes.length === 1 ? "attempt" : "attempts"}`}</small></div>
           </article>
           <article className="accountMetricCard">
             <span className="accountMetricIcon green">✓</span>
@@ -151,7 +208,7 @@ function ProgressTracking() {
                 ))}
               </div>
             ) : (
-              <div className="progressEmptyNote">Finish a quiz to see your results here.</div>
+              <div className="progressEmptyNote">{quizHistoryLoading ? "Loading quiz results…" : "Finish a quiz to see your results here."}</div>
             )}
           </article>
         </section>

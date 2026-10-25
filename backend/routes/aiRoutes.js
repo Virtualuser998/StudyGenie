@@ -52,67 +52,81 @@ const aiFileUpload = multer({
 const wait = (ms) =>
   new Promise((resolve) => setTimeout(resolve, ms));
 
+const isTransientAIError = (error) => {
+  const status = Number(error?.status || error?.response?.status || error?.cause?.status);
+  const code = [
+    error?.code,
+    error?.cause?.code,
+    error?.cause?.cause?.code
+  ].filter(Boolean).join(" ").toLowerCase();
+  const message = [
+    error?.message,
+    error?.cause?.message,
+    error?.cause?.cause?.message
+  ].filter(Boolean).join(" ").toLowerCase();
 
-const generateWithFallback = async (ai, prompt) => {
+  return [408, 425, 429, 500, 502, 503, 504].includes(status)
+    || /timeout|fetch failed|network error|econnreset|econnrefused|etimedout|und_err_/.test(`${code} ${message}`);
+};
 
-  const models = [
-    "gemini-3.8-flash",
-    "gemini-3.7-flash",
-    "gemini-3.6-flash"
-  ];
-
+const generateWithFallback = async (ai, prompt, config = {}) => {
+  const models = ["gemini-3.8-flash", "gemini-3.6-flash"];
   let lastError;
 
   for (const model of models) {
+    try {
+      console.log(`Generating with ${model}`);
+      return await ai.models.generateContent({
+        model,
+        contents: prompt,
+        config
+      });
+    } catch (error) {
+      if (!isTransientAIError(error)) throw error;
+      lastError = error;
+      console.warn(`Gemini ${model} request timed out or was unavailable; trying fallback.`);
+      await wait(300);
+    }
+  }
 
-    for (let attempt = 1; attempt <= 2; attempt++) {
+  throw lastError || new Error("AI service is temporarily unavailable");
+};
 
-      try {
+const extractJsonObject = (rawText) => {
+  if (typeof rawText !== "string") return null;
+  const text = rawText.trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "");
+  const start = text.indexOf("{");
+  if (start < 0) return null;
 
-        console.log(
-          `Trying ${model} - attempt ${attempt}`
-        );
+  let depth = 0;
+  let inString = false;
+  let escaped = false;
 
-        const response =
-          await ai.models.generateContent({
-            model: model,
-            contents: prompt
-          });
+  for (let index = start; index < text.length; index += 1) {
+    const character = text[index];
 
-        return response;
+    if (inString) {
+      if (escaped) escaped = false;
+      else if (character === "\\") escaped = true;
+      else if (character === "\"") inString = false;
+      continue;
+    }
 
-      } catch (error) {
-
-        lastError = error;
-
-        const message =
-          error?.message || "";
-
-        const isRetryable =
-          error?.status === 503 ||
-          error?.code === 503 ||
-          message.includes("503") ||
-          message.includes("UNAVAILABLE") ||
-          message.includes("high demand");
-
-        if (!isRetryable) {
-          throw error;
+    if (character === "\"") inString = true;
+    else if (character === "{") depth += 1;
+    else if (character === "}") {
+      depth -= 1;
+      if (depth === 0) {
+        try {
+          return JSON.parse(text.slice(start, index + 1));
+        } catch {
+          return null;
         }
-
-        console.log(
-          `${model} busy. Retrying...`
-        );
-
-        await wait(
-          attempt === 1
-            ? 1500
-            : 3000
-        );
       }
     }
   }
 
-  throw lastError;
+  return null;
 };
 router.post(
   "/generate-notes",
@@ -140,8 +154,11 @@ router.post(
 
 
       const ai = new GoogleGenAI({
-        apiKey:
-          process.env.GEMINI_API_KEY
+        apiKey: process.env.GEMINI_API_KEY,
+        httpOptions: {
+          timeout: 30000,
+          retryOptions: { attempts: 1 }
+        }
       });
 
 
@@ -252,17 +269,10 @@ ${text}
     const message =
     error?.message || "";
 
-  const isUnavailable =
-    error?.status === 503 ||
-    error?.code === 503 ||
-    message.includes("503") ||
-    message.includes("UNAVAILABLE") ||
-    message.includes("high demand");
-
-  if (isUnavailable) {
+  if (isTransientAIError(error)) {
     return res.status(503).json({
       message:
-        "AI service is busy right now. Please try again in a moment."
+        "The AI service timed out or is busy. Please try again in a moment."
     });
   }
   res.status(500).json({
@@ -409,7 +419,13 @@ router.post(
         });
       }
 
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+      const ai = new GoogleGenAI({
+        apiKey: process.env.GEMINI_API_KEY,
+        httpOptions: {
+          timeout: 30000,
+          retryOptions: { attempts: 1 }
+        }
+      });
       const prompt = `Create a student-friendly study kit from this material.
 Return only valid JSON with this exact shape:
 {
@@ -423,35 +439,53 @@ Return only valid JSON with this exact shape:
     }
   ]
 }
-Create exactly 5 multiple-choice questions based only on the source material.
+Create 3 to 5 multiple-choice questions based only on the source material. Use 5 when the material supports five distinct questions; otherwise return fewer rather than repeating questions or inventing facts.
 Each question must have 4 distinct options. The answer must be a zero-based option index.
 Do not include facts that are not supported by the material.
 
 Study material:
 ${sourceText.slice(0, 30000)}`;
 
-      const response = await generateWithFallback(ai, prompt);
-      const rawText = response.text || "";
-      const jsonText = rawText
-        .replace(/^```(?:json)?\s*/i, "")
-        .replace(/\s*```$/, "")
-        .trim();
-      let studyKit;
+      const response = await generateWithFallback(ai, prompt, {
+        responseMimeType: "application/json",
+        responseJsonSchema: {
+          type: "object",
+          properties: {
+            summary: { type: "string" },
+            questions: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  question: { type: "string" },
+                  options: { type: "array", items: { type: "string" } },
+                  answer: { type: "integer" },
+                  explanation: { type: "string" }
+                },
+                required: ["question", "options", "answer", "explanation"]
+              }
+            }
+          },
+          required: ["summary", "questions"]
+        }
+      });
+      const studyKit = extractJsonObject(response.text);
 
-      try {
-        studyKit = JSON.parse(jsonText);
-      } catch {
+      if (!studyKit) {
         return res.status(502).json({
           message: "The AI returned an unreadable quiz. Please try again."
         });
       }
 
       const validQuestions = Array.isArray(studyKit.questions)
-        && studyKit.questions.length === 5
+        && studyKit.questions.length >= 3
+        && studyKit.questions.length <= 5
         && studyKit.questions.every((question) =>
           typeof question.question === "string"
+          && question.question.trim().length > 0
           && Array.isArray(question.options)
           && question.options.length === 4
+          && question.options.every((option) => typeof option === "string" && option.trim().length > 0)
           && Number.isInteger(question.answer)
           && question.answer >= 0
           && question.answer < 4
@@ -485,6 +519,11 @@ ${sourceText.slice(0, 30000)}`;
       });
     } catch (error) {
       console.error("Generate Material Study Kit Error:", error);
+      if (isTransientAIError(error)) {
+        return res.status(503).json({
+          message: "The AI service timed out or is busy. Please try again."
+        });
+      }
       res.status(500).json({
         message: "Could not generate a summary and quiz. Please try again."
       });
