@@ -1,0 +1,649 @@
+/* ======================================
+   AI NOTES PAGE HEADER
+====================================== */
+
+.aiNotesHeader {
+  margin-bottom: 24px;
+}
+
+.aiNotesHeader h1 {
+  margin: 0;
+  font-size: 28px;
+  color: #1e1b35;
+}
+
+.aiNotesHeader p {
+  margin: 7px 0 0;
+  color: #77798d;
+  font-size: 14px;
+}
+
+/* ======================================
+   MAIN GRID
+====================================== */
+
+.aiNotesMainGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 22px;
+  align-items: start;
+}
+
+.aiNotesLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.aiNotesRight {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+/* ======================================
+   COMMON CARD
+====================================== */
+.aiNotesCard {
+  background: #ffffff;
+  border: 1px solid #ebe8f3;
+  border-radius: 17px;
+  padding: 23px;
+
+  box-shadow:
+    0 8px 22px
+    rgba(64, 40, 120, 0.05);
+}
+
+.aiNotesCardHeader h2 {
+  margin: 0;
+  font-size: 19px;
+  color: #211e38;
+}
+
+.aiNotesCardHeader p {
+  margin: 7px 0 0;
+  color: #7a7b8e;
+  font-size: 13px;
+}
+/* ======================================
+   TABS
+====================================== */
+.aiNotesTabs {
+  margin-top: 22px;
+  margin-bottom: 20px;
+  display: flex;
+  gap: 8px;
+  padding: 5px;
+  background: #f6f4fb;
+  border-radius: 11px;
+}
+
+.aiNotesTabs button {
+  flex: 1;
+  padding: 11px 12px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #66677b;
+  font-weight: 600;
+  font-size: 12px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.aiNotesTabs button:hover {
+  background: #ece7ff;
+  color: #613be1;
+}
+
+.aiNotesTabs .activeAiTab {
+  background: white;
+  color: #613be1;
+  box-shadow:
+    0 3px 10px
+    rgba(69, 40, 140, 0.08);
+}
+/* ======================================
+   UPLOAD BOX
+====================================== */
+.aiUploadBox {
+  padding: 35px 20px;
+  text-align: center;
+  border: 2px dashed #d6cef3;
+  border-radius: 14px;
+  background: #fcfbff;
+}
+
+.aiUploadIcon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #eee9ff;
+  font-size: 30px;
+}
+
+.aiUploadBox h3 {
+  margin: 8px 0;
+  font-size: 17px;
+}
+
+.aiUploadBox p {
+  margin: 6px auto 15px;
+  max-width: 450px;
+  color: #7b7c8e;
+  font-size: 12px;
+}
+
+.aiBrowseBtn {
+  padding: 11px 22px;
+  border: none;
+  border-radius: 9px;
+  background: #6b40eb;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.aiBrowseBtn:hover {
+  background: #5c32db;
+}
+
+.aiUploadBox span {
+  display: block;
+  margin-top: 12px;
+  color: #9999a9;
+  font-size: 11px;
+}
+
+
+/* ======================================
+   PASTE TEXT
+====================================== */
+
+.pasteTextBox {
+  margin-top: 10px;
+}
+
+.pasteTextBox label,
+.youtubeInputBox label,
+.aiOptionGroup label {
+  display: block;
+
+  margin-bottom: 8px;
+
+  font-size: 12px;
+  font-weight: 600;
+
+  color: #4f5063;
+}
+
+.pasteTextBox textarea {
+  width: 100%;
+  resize: vertical;
+  padding: 14px;
+  border: 1px solid #dedbea;
+  border-radius: 10px;
+  outline: none;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.pasteTextBox textarea:focus {
+  border-color: #7650eb;
+}
+
+
+/* ======================================
+   YOUTUBE INPUT
+====================================== */
+
+.youtubeInputBox {
+  padding: 20px;
+  background: #faf9fe;
+  border: 1px solid #ebe8f3;
+  border-radius: 12px;
+}
+
+.youtubeInputBox input {
+  width: 100%;
+  padding: 12px 13px;
+  border: 1px solid #dedbea;
+  border-radius: 9px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.youtubeInputBox input:focus {
+  border-color: #7045e8;
+}
+
+.youtubeInputBox p {
+  margin: 8px 0 0;
+  color: #858699;
+  font-size: 11px;
+}
+
+
+/* ======================================
+   AI OPTIONS
+====================================== */
+
+.aiOptions {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.aiOptionGroup select {
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid #dedbea;
+  border-radius: 9px;
+  background: white;
+  outline: none;
+}
+
+.aiOptionGroup select:focus {
+  border-color: #7045e8;
+}
+
+
+/* ======================================
+   GENERATE BUTTON
+====================================== */
+
+.generateNotesBtn {
+  width: 100%;
+  margin-top: 20px;
+  padding: 13px;
+  border: none;
+  border-radius: 10px;
+  background:
+    linear-gradient(
+      90deg,
+      #7548ef,
+      #5d31db
+    );
+
+  color: white;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.generateNotesBtn:hover {
+  opacity: 0.92;
+}
+
+
+/* ======================================
+   GENERATED NOTES
+====================================== */
+
+.generatedNotesCard {
+  margin-bottom: 25px;
+}
+
+.generatedHeader {
+  display: flex;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  padding-bottom: 18px;
+
+  border-bottom: 1px solid #efedf5;
+}
+
+.generatedBadge {
+  display: inline-block;
+
+  margin-bottom: 8px;
+
+  padding: 5px 9px;
+
+  border-radius: 7px;
+
+  background: #ece7ff;
+  color: #6239df;
+
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.generatedHeader h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.generatedHeader p {
+  margin: 6px 0 0;
+
+  color: #818294;
+  font-size: 12px;
+}
+
+.generatedActions {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+}
+
+.generatedActions button {
+  padding: 8px 10px;
+
+  border: 1px solid #dedbea;
+  border-radius: 8px;
+
+  background: white;
+
+  color: #56576a;
+
+  cursor: pointer;
+
+  font-size: 11px;
+}
+
+.generatedActions button:hover {
+  border-color: #7350e4;
+  color: #6037da;
+}
+
+
+/* ======================================
+   GENERATED CONTENT
+====================================== */
+
+.generatedContent {
+  padding: 20px 5px;
+}
+
+.generatedContent h3 {
+  margin: 15px 0 8px;
+
+  color: #252238;
+
+  font-size: 15px;
+}
+
+.generatedContent p,
+.generatedContent li {
+  color: #66677a;
+
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.generatedContent ul {
+  padding-left: 20px;
+}
+
+
+/* ======================================
+   GENERATED STATS
+====================================== */
+
+.generatedStats {
+  padding-top: 16px;
+  border-top: 1px solid #efedf5;
+  display: grid;
+  grid-template-columns:
+    repeat(4, 1fr);
+  gap: 10px;
+}
+
+.generatedStats div {
+  text-align: center;
+  padding: 12px;
+  background: #faf9fe;
+  border-radius: 10px;
+}
+
+.generatedStats strong {
+  display: block;
+  color: #3c315f;
+  font-size: 16px;
+}
+
+.generatedStats span {
+  display: block;
+  margin-top: 4px;
+  color: #858699;
+  font-size: 10px;
+}
+
+
+/* ======================================
+   RIGHT SIDE HEADER
+====================================== */
+
+.sideCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.sideCardHeader h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.sideCardHeader button {
+  border: none;
+  background: transparent;
+  color: #653dde;
+  cursor: pointer;
+  font-size: 11px;
+}
+
+
+/* ======================================
+   RECENT NOTE
+====================================== */
+
+.recentNoteItem {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 13px 0;
+  border-bottom: 1px solid #efedf5;
+}
+
+.recentNoteIcon {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f0ecff;
+  border-radius: 9px;
+}
+
+.recentNoteText {
+  flex: 1;
+}
+
+.recentNoteText h4 {
+  margin: 0;
+  font-size: 12px;
+}
+
+.recentNoteText p {
+  margin: 3px 0;
+  color: #707184;
+  font-size: 10px;
+}
+
+.recentNoteText span {
+  color: #a0a0ad;
+  font-size: 9px;
+}
+
+.recentNoteItem button {
+  border: none;
+  background: transparent;
+  color: #6439e1;
+  cursor: pointer;
+}
+
+
+/* ======================================
+   TIPS
+====================================== */
+
+.tipsCard h3 {
+  margin-top: 0;
+}
+
+.tipsCard ul {
+  margin-bottom: 0;
+  padding-left: 18px;
+}
+
+.tipsCard li {
+  margin-bottom: 10px;
+  color: #66677a;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+
+/* ======================================
+   RESPONSIVE
+====================================== */
+
+@media(max-width: 1100px) {
+
+  .aiNotesMainGrid {
+    grid-template-columns: 1fr;
+  }
+
+}
+
+
+@media(max-width: 800px) {
+
+  .aiNotesTabs {
+    flex-direction: column;
+  }
+
+  .aiOptions {
+    grid-template-columns: 1fr;
+  }
+  .generatedHeader {
+    flex-direction: column;
+  }
+  .generatedActions {
+    flex-wrap: wrap;
+  }
+
+  .generatedStats {
+    grid-template-columns: 1fr 1fr;
+  }
+
+}
+
+.generatedAiText {
+  line-height: 1.7;
+  font-size: 14px;
+  color: #55566b;
+}
+
+.generatedAiText h1 {
+  font-size: 24px;
+  margin: 20px 0 12px;
+  color: #211e38;
+}
+
+.generatedAiText h2 {
+  font-size: 19px;
+  margin: 20px 0 10px;
+  color: #292441;
+}
+
+.generatedAiText h3 {
+  font-size: 16px;
+  margin: 18px 0 8px;
+  color: #332d50;
+}
+
+.generatedAiText p {
+  margin: 8px 0 14px;
+  line-height: 1.7;
+}
+
+.generatedAiText ul,
+.generatedAiText ol {
+  padding-left: 24px;
+  margin: 10px 0 15px;
+}
+
+.generatedAiText li {
+  margin-bottom: 7px;
+}
+
+.generatedAiText strong {
+  color: #292441;
+  font-weight: 700;
+}
+
+.generatedAiText code {
+  padding: 2px 6px;
+  background: #f2effc;
+  border-radius: 5px;
+  color: #613be1;
+}
+
+.generateNotesBtn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.noRecentNotes {
+  padding: 25px 5px;
+  text-align: center;
+  color: #858699;
+  font-size: 12px;
+}
+
+.recentNoteActions {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.recentNoteActions button {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.recentNoteActions button:hover {
+  background: #f0ecff;
+}
+
+.selectedAiFile {
+  width: fit-content;
+  margin: 14px auto 6px;
+  padding: 9px 13px;
+  border-radius: 8px;
+  background: #f0ecff;
+  color: #5836cc;
+  font-size: 12px;
+  font-weight: 600;
+}

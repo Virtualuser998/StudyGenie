@@ -1,0 +1,457 @@
+.materialsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.materialsHeader h1 {
+  margin: 0;
+  font-size: 28px;
+}
+
+.materialsHeader p {
+  margin: 6px 0 0;
+  color: #77798d;
+}
+.uploadTopBtn {
+  padding: 12px 20px;
+
+  border: none;
+  border-radius: 10px;
+  background: #6d40ed;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+/* TOP GRID */
+
+.materialsTopGrid {
+  display: grid;
+  grid-template-columns:
+    1.6fr 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 22px;
+}
+
+.uploadCard,
+.materialsInfoCard {
+  background: white;
+
+  border:
+    1px solid #ebe8f3;
+
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow:
+    0 8px 20px
+    rgba(64, 40, 120, 0.04);
+}
+
+.uploadCard {
+  text-align: center;
+  border:
+    2px dashed #d8cff8;
+}
+
+.uploadIcon {
+  width: 62px;
+  height: 62px;
+  margin: 0 auto 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #eee9ff;
+  font-size: 30px;
+}
+
+.uploadCard h2 {
+  margin: 8px 0;
+  font-size: 20px;
+}
+
+.uploadCard p {
+  color: #77798d;
+  font-size: 13px;
+}
+
+.browseBtn {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 11px 22px;
+  background: #6d40ed;
+  color: white;
+  border-radius: 9px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.uploadSupport {
+  display: block;
+  margin-top: 12px;
+  color: #9293a5;
+  font-size: 11px;
+}
+
+.materialsInfoCard h3 {
+  margin-top: 0;
+}
+
+.materialsInfoCard ul {
+  margin: 0;
+  padding-left: 18px;
+  color: #68697d;
+  line-height: 1.9;
+  font-size: 13px;
+}
+
+/* STORAGE */
+
+.storageText {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 13px;
+}
+
+.storageBar {
+  height: 10px;
+  background: #eee9ff;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.storageFill {
+  width: 42%;
+  height: 100%;
+  background: #6d40ed;
+}
+
+.materialsInfoCard p {
+  color: #77798d;
+  font-size: 12px;
+}
+
+
+/* MAIN CONTENT */
+
+.materialsContent {
+  display: grid;
+  grid-template-columns:
+    1fr 310px;
+  gap: 20px;
+}
+
+.materialsListCard,
+.filterCard,
+.subjectsCard {
+  background: white;
+
+  border:
+    1px solid #ebe8f3;
+
+  border-radius: 16px;
+
+  padding: 22px;
+
+  box-shadow:
+    0 8px 20px
+    rgba(64, 40, 120, 0.04);
+}
+
+.materialsListHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  margin-bottom: 16px;
+}
+
+.materialsListHeader h2 {
+  margin: 0;
+}
+
+.materialsListHeader p {
+  margin: 5px 0 0;
+
+  color: #77798d;
+
+  font-size: 12px;
+}
+
+.materialsActions {
+  display: flex;
+
+  gap: 8px;
+}
+
+.materialsActions select,
+.materialsActions button {
+  padding: 8px 10px;
+
+  border:
+    1px solid #ddd9eb;
+
+  border-radius: 8px;
+
+  background: white;
+}
+
+
+/* MATERIAL ROW */
+
+.materialRow {
+  display: grid;
+
+  grid-template-columns:
+    48px 1fr 80px 90px 42px 34px;
+
+  align-items: center;
+
+  gap: 12px;
+
+  padding: 15px 0;
+
+  border-bottom:
+    1px solid #efedf4;
+}
+
+.materialFileIcon {
+  width: 42px;
+  height: 42px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 10px;
+
+  background: #f2eeff;
+
+  font-size: 22px;
+}
+
+.materialName h4 {
+  margin: 0;
+
+  font-size: 13px;
+}
+
+.materialName p {
+  margin: 4px 0 0;
+
+  color: #77798d;
+
+  font-size: 11px;
+}
+
+.materialSize,
+.materialDate {
+  color: #6f7083;
+
+  font-size: 11px;
+}
+
+.downloadBtn,
+.menuBtn {
+  border: none;
+
+  background: transparent;
+
+  cursor: pointer;
+
+  font-size: 16px;
+}
+
+
+/* PAGINATION */
+
+.pagination {
+  display: flex;
+  justify-content: center;
+
+  gap: 8px;
+
+  margin-top: 20px;
+}
+
+.pagination button {
+  width: 34px;
+  height: 34px;
+
+  border:
+    1px solid #ddd9eb;
+
+  border-radius: 7px;
+
+  background: white;
+
+  cursor: pointer;
+}
+
+.pagination .activePage {
+  background: #6d40ed;
+
+  color: white;
+
+  border-color: #6d40ed;
+}
+
+
+/* RIGHT SIDE */
+
+.materialsRight {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 20px;
+}
+
+.filterCard h3,
+.subjectsCard h3 {
+  margin-top: 0;
+}
+
+.filterCard input,
+.filterCard select {
+  width: 100%;
+  padding: 11px 12px;
+  margin-bottom: 14px;
+  border:
+    1px solid #ddd9eb;
+  border-radius: 8px;
+  outline: none;
+}
+
+.filterCard label {
+  display: block;
+  margin-bottom: 7px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.applyFilterBtn {
+  width: 100%;
+  padding: 11px;
+  border: none;
+  border-radius: 9px;
+  background: #6d40ed;
+  color: white;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+
+/* SUBJECTS */
+
+.subjectItem {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom:
+    1px solid #efedf4;
+  font-size: 13px;
+}
+
+.subjectItem strong {
+  width: 28px;
+  height: 24px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 7px;
+
+  background: #eee9ff;
+
+  color: #6039e0;
+
+  font-size: 11px;
+}
+
+
+/* RESPONSIVE */
+
+@media(max-width: 1150px) {
+
+  .materialsTopGrid {
+    grid-template-columns:
+      1fr 1fr;
+  }
+
+  .uploadCard {
+    grid-column:
+      1 / -1;
+  }
+
+  .materialsContent {
+    grid-template-columns:
+      1fr;
+  }
+
+}
+
+@media(max-width: 800px) {
+
+  .materialsHeader {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .materialsTopGrid {
+    grid-template-columns:
+      1fr;
+  }
+
+  .materialRow {
+    grid-template-columns:
+      45px 1fr 35px;
+  }
+
+  .materialSize,
+  .materialDate {
+    display: none;
+  }
+
+  .menuBtn {
+    display: none;
+  }
+}
+
+.noMaterials {
+  padding: 45px 20px;
+  text-align: center;
+  color: #77798d;
+}
+
+.noMaterials p {
+  margin: 0;
+  font-size: 14px;
+}
+
+.uploadSubject {
+  width: 230px;
+  margin: 15px auto;
+  text-align: left;
+}
+
+.uploadSubject label {
+  display: block;
+  margin-bottom: 7px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #55566d;
+}
+
+.uploadSubject select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd9eb;
+  border-radius: 8px;
+  background: white;
+  outline: none;
+}
