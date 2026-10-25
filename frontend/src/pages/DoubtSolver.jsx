@@ -31,6 +31,9 @@ function DoubtSolver() {
   const [loading, setLoading] =
     useState(false);
 
+  const [quotaBlocked, setQuotaBlocked] =
+    useState(false);
+
   const [showAllHistory, setShowAllHistory] =
     useState(false);
 
@@ -52,7 +55,7 @@ function DoubtSolver() {
 
 
       if (!token) {
-        return;
+        return null;
       }
 
 
@@ -68,24 +71,24 @@ function DoubtSolver() {
         );
 
 
-      setDoubtHistory(
-        response.data
-      );
-
-
       console.log(
         "Doubt History:",
         response.data
       );
 
+      return response.data;
 
     } catch (error) {
 
       console.error(
         "Fetch Doubt History Error:",
-        error
+        {
+          status: error.response?.status || 0,
+          message: error.response?.data?.message || error.message
+        }
       );
 
+      return null;
     }
 
   };
@@ -97,7 +100,17 @@ function DoubtSolver() {
 
   useEffect(() => {
 
-    fetchDoubtHistory();
+    let active = true;
+
+    fetchDoubtHistory().then((history) => {
+      if (active && Array.isArray(history)) {
+        setDoubtHistory(history);
+      }
+    });
+
+    return () => {
+      active = false;
+    };
 
   }, []);
 
@@ -120,6 +133,8 @@ function DoubtSolver() {
   // =====================================
 
   const handleAskDoubt = async () => {
+
+    if (quotaBlocked || loading) return;
 
     const cleanQuestion =
       question.trim();
@@ -239,16 +254,27 @@ function DoubtSolver() {
 
 
       // Refresh MongoDB history
-      await fetchDoubtHistory();
+      const history =
+        await fetchDoubtHistory();
+      if (Array.isArray(history)) {
+        setDoubtHistory(history);
+      }
 
 
     } catch (error) {
 
       console.error(
         "Ask Doubt Error:",
-        error
+        {
+          status: error.response?.status || 0,
+          code: error.response?.data?.code || "unknown",
+          message: error.response?.data?.message || error.message
+        }
       );
 
+      const isQuotaExceeded =
+        error.response?.data?.code === "AI_QUOTA_EXHAUSTED";
+      if (isQuotaExceeded) setQuotaBlocked(true);
 
       const errorMessage = {
 
@@ -298,7 +324,7 @@ function DoubtSolver() {
 
       e.preventDefault();
 
-      if (!loading) {
+      if (!loading && !quotaBlocked) {
         handleAskDoubt();
       }
 
@@ -752,7 +778,7 @@ function DoubtSolver() {
                 }
                 onKeyDown={handleKeyDown}
                 rows="2"
-                disabled={loading}
+                disabled={loading || quotaBlocked}
               />
 
 
@@ -761,13 +787,16 @@ function DoubtSolver() {
                 onClick={handleAskDoubt}
                 disabled={
                   loading ||
+                  quotaBlocked ||
                   !question.trim()
                 }
               >
 
                 {loading
                   ? "..."
-                  : "➤"}
+                  : quotaBlocked
+                    ? "—"
+                    : "➤"}
 
               </button>
 
@@ -776,8 +805,9 @@ function DoubtSolver() {
 
             <div className="chatInputHint">
 
-              Press Enter to send •
-              Shift + Enter for new line
+              {quotaBlocked
+                ? "Daily AI quota reached. Reload this page after the quota resets."
+                : "Press Enter to send • Shift + Enter for new line"}
 
             </div>
 

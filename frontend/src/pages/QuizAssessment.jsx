@@ -23,6 +23,7 @@ function QuizAssessment() {
   const [generating, setGenerating] = useState(false);
   const [savingAttempt, setSavingAttempt] = useState(false);
   const [canRetryGeneration, setCanRetryGeneration] = useState(false);
+  const [quotaBlocked, setQuotaBlocked] = useState(false);
   const [error, setError] = useState(
     hasToken ? "" : "Sign in to use your uploaded study materials."
   );
@@ -90,9 +91,13 @@ function QuizAssessment() {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setStudyKit(response.data);
+      setQuotaBlocked(false);
     } catch (requestError) {
-      setError(requestError.response?.data?.message || "Could not generate your study kit. Please try again.");
-      setCanRetryGeneration(true);
+      const responseData = requestError.response?.data;
+      const quotaExceeded = responseData?.code === "AI_QUOTA_EXHAUSTED";
+      setError(responseData?.message || "Could not generate your study kit. Please try again.");
+      setQuotaBlocked(quotaExceeded);
+      setCanRetryGeneration(!quotaExceeded);
     } finally {
       setGenerating(false);
     }
@@ -201,9 +206,9 @@ function QuizAssessment() {
                     ))}
                   </select>
                   <p className="quizSupportedTypes">Supported files: PDF, DOCX, TXT</p>
-                  <button className="learningPrimaryButton" disabled={generating || !selectedMaterial} onClick={generateStudyKit} type="button">
-                    {generating ? "Generating summary & quiz…" : "Generate summary & quiz"}
-                    {!generating && <span aria-hidden="true">→</span>}
+                  <button className="learningPrimaryButton" disabled={generating || !selectedMaterial || quotaBlocked} onClick={generateStudyKit} type="button">
+                    {quotaBlocked ? "AI quota reached" : generating ? "Generating summary & quiz…" : "Generate summary & quiz"}
+                    {!generating && !quotaBlocked && <span aria-hidden="true">→</span>}
                   </button>
                 </>
               ) : (

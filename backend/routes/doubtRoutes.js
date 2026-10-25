@@ -2,6 +2,7 @@ const express = require("express");
 const { GoogleGenAI } = require("@google/genai");
 const Doubt = require("../models/Doubt");
 const authMiddleware = require("../middleware/authMiddleware");
+const { sendAIError } = require("../utils/aiErrors");
 const router = express.Router();
 const geminiModel = () => {
   const configuredModel = process.env.GEMINI_MODEL?.trim();
@@ -290,19 +291,13 @@ router.post(
 
       console.error(
         "Doubt Solver Error:",
-        error
+        {
+          status: error?.status || error?.response?.status || 0,
+          code: error?.code || "unknown"
+        }
       );
 
-
-      res
-        .status(500)
-        .json({
-
-          message:
-            error.message ||
-            "Failed to solve doubt"
-
-        });
+      return sendAIError(res, error);
 
     }
 

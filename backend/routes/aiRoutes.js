@@ -10,6 +10,11 @@ const path = require("path");
 const authMiddleware =require("../middleware/authMiddleware");
 const AINote =require("../models/AINote");
 const Material = require("../models/Material");
+const {
+  isAIQuotaExhaustedError,
+  isTransientAIError,
+  sendAIError
+} = require("../utils/aiErrors");
 const router = express.Router();
 
 const aiFileUpload = multer({
@@ -52,23 +57,6 @@ const aiFileUpload = multer({
 const wait = (ms) =>
   new Promise((resolve) => setTimeout(resolve, ms));
 
-const isTransientAIError = (error) => {
-  const status = Number(error?.status || error?.response?.status || error?.cause?.status);
-  const code = [
-    error?.code,
-    error?.cause?.code,
-    error?.cause?.cause?.code
-  ].filter(Boolean).join(" ").toLowerCase();
-  const message = [
-    error?.message,
-    error?.cause?.message,
-    error?.cause?.cause?.message
-  ].filter(Boolean).join(" ").toLowerCase();
-
-  return [408, 425, 429, 500, 502, 503, 504].includes(status)
-    || /timeout|fetch failed|network error|econnreset|econnrefused|etimedout|und_err_/.test(`${code} ${message}`);
-};
-
 const generateWithFallback = async (ai, prompt, config = {}) => {
   const models = [...new Set([
     process.env.GEMINI_MODEL || "gemini-3.8-flash",
@@ -85,6 +73,7 @@ const generateWithFallback = async (ai, prompt, config = {}) => {
         config
       });
     } catch (error) {
+      if (isAIQuotaExhaustedError(error)) throw error;
       if (!isTransientAIError(error)) throw error;
       lastError = error;
       console.warn(`Gemini ${model} request timed out or was unavailable; trying fallback.`);
@@ -269,20 +258,7 @@ ${text}
     "Gemini / Save Notes Error:",
     error
   );
-    const message =
-    error?.message || "";
-
-  if (isTransientAIError(error)) {
-    return res.status(503).json({
-      message:
-        "The AI service timed out or is busy. Please try again in a moment."
-    });
-  }
-  res.status(500).json({
-    message:
-      error.message ||
-      "Failed to generate notes"
-  });
+  return sendAIError(res, error);
 } 
   }
 );
@@ -522,14 +498,7 @@ ${sourceText.slice(0, 30000)}`;
       });
     } catch (error) {
       console.error("Generate Material Study Kit Error:", error);
-      if (isTransientAIError(error)) {
-        return res.status(503).json({
-          message: "The AI service timed out or is busy. Please try again."
-        });
-      }
-      res.status(500).json({
-        message: "Could not generate a summary and quiz. Please try again."
-      });
+      return sendAIError(res, error);
     }
   }
 );
