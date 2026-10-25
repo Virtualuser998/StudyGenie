@@ -8,6 +8,9 @@ import StudyMaterials from "./pages/StudyMaterials";
 import AINotes from "./pages/AINotes";
 import QuizAssessment from "./pages/QuizAssessment";
 import StudyPlanner from "./pages/StudyPlanner";
+import ProgressTracking from "./pages/ProgressTracking";
+import Profile from "./pages/Profile";
+import Settings from "./pages/Settings";
 function App() {
   return (
     <Routes>
@@ -24,6 +27,9 @@ function App() {
       <Route path="/doubt-solver" element={<DoubtSolver />}/>
       <Route path="/quiz" element={<QuizAssessment />} />
       <Route path="/planner" element={<StudyPlanner />} />
+      <Route path="/progress" element={<ProgressTracking />} />
+      <Route path="/profile" element={<Profile />} />
+      <Route path="/settings" element={<Settings />} />
       
       </Routes>
       

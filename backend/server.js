@@ -39,7 +39,7 @@ app.use(
 
 
 const PORT =
-    process.env.PORT || 5000;
+    process.env.PORT || 3001;
 
 app.listen(PORT,() => {
         console.log(

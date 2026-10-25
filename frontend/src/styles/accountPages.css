@@ -1,0 +1,597 @@
+.accountMain {
+  min-width: 0;
+}
+
+.accountPageIntro {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+  margin: 3px 0 24px;
+}
+
+.accountEyebrow {
+  display: inline-block;
+  margin-bottom: 8px;
+  color: #795fe1;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+}
+
+.accountPageIntro h1 {
+  margin: 0;
+  color: #25223d;
+  font-size: 27px;
+}
+
+.accountPageIntro p {
+  margin: 7px 0 0;
+  color: #858699;
+  font-size: 13px;
+}
+
+.accountMetricGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 15px;
+  margin-bottom: 17px;
+}
+
+.accountMetricCard {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  min-width: 0;
+  border: 1px solid #ebeaf3;
+  border-radius: 14px;
+  padding: 17px;
+  background: white;
+  box-shadow: 0 5px 15px rgba(50, 44, 100, 0.04);
+}
+
+.accountMetricIcon {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 12px;
+  font-size: 18px;
+}
+
+.accountMetricIcon.purple {
+  background: #f0ecff;
+  color: #694bd7;
+}
+
+.accountMetricIcon.green {
+  background: #e9f8f1;
+  color: #29956b;
+}
+
+.accountMetricIcon.orange {
+  background: #fff2e6;
+  color: #c98243;
+}
+
+.accountMetricCard > div {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+
+.accountMetricCard > div > span {
+  color: #898697;
+  font-size: 10px;
+}
+
+.accountMetricCard strong {
+  overflow: hidden;
+  color: #302d42;
+  font-size: 21px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.accountMetricCard small {
+  overflow: hidden;
+  color: #a09eac;
+  font-size: 9px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.accountContentGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.accountPanel {
+  min-width: 0;
+  border: 1px solid #ebeaf3;
+  border-radius: 15px;
+  padding: 20px;
+  background: white;
+  box-shadow: 0 5px 16px rgba(50, 44, 100, 0.04);
+}
+
+.accountPanelHeading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.accountPanelHeading h2 {
+  margin: 0;
+  color: #302d42;
+  font-size: 15px;
+}
+
+.accountPanelHeading p {
+  margin: 5px 0 0;
+  color: #9794a3;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.panelHeadingIcon {
+  display: grid;
+  width: 35px;
+  height: 35px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 10px;
+  background: #f1edff;
+  color: #684bd5;
+  font-size: 17px;
+}
+
+.goalSummary {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 22px 0 12px;
+}
+
+.goalSummary > strong {
+  color: #302d42;
+  font-size: 25px;
+}
+
+.goalSummary > strong span {
+  color: #9996a6;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.goalSummary > span {
+  color: #9390a0;
+  font-size: 10px;
+}
+
+.accountProgressTrack {
+  height: 9px;
+  overflow: hidden;
+  border-radius: 99px;
+  background: #efedf6;
+}
+
+.accountProgressTrack > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #8169e8, #5f3bd6);
+  transition: width 180ms ease;
+}
+
+.goalFootnote {
+  margin: 8px 0 20px;
+  color: #9996a6;
+  font-size: 9px;
+}
+
+.studyCompletionSummary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-top: 1px solid #f0eef5;
+  padding-top: 14px;
+  color: #7f7b8f;
+  font-size: 10px;
+}
+
+.studyCompletionSummary strong {
+  color: #5e49bb;
+  font-size: 12px;
+}
+
+.progressEmptyNote {
+  display: grid;
+  min-height: 100px;
+  place-items: center;
+  color: #9b98a7;
+  font-size: 11px;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.subjectProgressList {
+  display: grid;
+}
+
+.subjectProgressItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border-top: 1px solid #f1eff5;
+  padding: 12px 0;
+}
+
+.subjectProgressItem:first-child {
+  border-top: 0;
+  padding-top: 2px;
+}
+
+.subjectProgressItem > div {
+  display: grid;
+  gap: 4px;
+}
+
+.subjectProgressItem strong {
+  color: #504d61;
+  font-size: 11px;
+}
+
+.subjectProgressItem span {
+  color: #a09cab;
+  font-size: 9px;
+}
+
+.subjectProgressItem > b {
+  color: #6450bd;
+  font-size: 12px;
+}
+
+.activityPanel {
+  margin-bottom: 20px;
+}
+
+.learningActivityList {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.learningActivityList li {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  border-top: 1px solid #f1eff5;
+  padding: 11px 0;
+}
+
+.activityTypeIcon {
+  display: grid;
+  width: 33px;
+  height: 33px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 10px;
+  font-size: 13px;
+}
+
+.activityTypeIcon.quiz {
+  background: #f0ecff;
+  color: #684bd5;
+}
+
+.activityTypeIcon.study {
+  background: #e9f8f1;
+  color: #29956b;
+}
+
+.activityDescription {
+  display: grid;
+  min-width: 0;
+  flex: 1;
+  gap: 4px;
+}
+
+.activityDescription strong {
+  overflow: hidden;
+  color: #504d61;
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.activityDescription small,
+.learningActivityList time {
+  color: #9d99a9;
+  font-size: 9px;
+}
+
+.profileLayout {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.75fr) minmax(0, 1.5fr);
+  align-items: start;
+  gap: 16px;
+}
+
+.profileSummaryPanel {
+  display: flex;
+  min-height: 275px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.profileLargeAvatar {
+  display: grid;
+  width: 84px;
+  height: 84px;
+  margin-bottom: 15px;
+  place-items: center;
+  border: 5px solid #f0ecff;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #795ae5, #552ed1);
+  color: white;
+  font-size: 30px;
+  font-weight: 800;
+}
+
+.profileSummaryPanel h2 {
+  margin: 0;
+  color: #302d42;
+  font-size: 17px;
+}
+
+.profileSummaryPanel > p {
+  margin: 6px 0 13px;
+  color: #92909f;
+  font-size: 11px;
+}
+
+.accountStatus {
+  border-radius: 20px;
+  padding: 6px 10px;
+  background: #f6f5f9;
+  color: #9793a2;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.accountStatus.signedIn {
+  background: #eaf8f1;
+  color: #2c956c;
+}
+
+.profileFormPanel {
+  padding: 23px;
+}
+
+.accountForm {
+  display: grid;
+  gap: 15px;
+}
+
+.accountFormField {
+  display: grid;
+  min-width: 0;
+  gap: 7px;
+}
+
+.accountFormField label {
+  color: #575469;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.accountFormField input,
+.accountFormField select {
+  width: 100%;
+  min-width: 0;
+  height: 42px;
+  border: 1px solid #e5e2ed;
+  border-radius: 9px;
+  padding: 0 12px;
+  outline: none;
+  background: white;
+  color: #4d495f;
+  font: inherit;
+  font-size: 11px;
+}
+
+.accountFormField input:focus,
+.accountFormField select:focus {
+  border-color: #8068df;
+  box-shadow: 0 0 0 3px rgba(98, 70, 217, 0.08);
+}
+
+.accountFormRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.accountPrimaryButton {
+  min-height: 43px;
+  border: 0;
+  border-radius: 9px;
+  padding: 0 17px;
+  background: linear-gradient(100deg, #7048e8, #5a32d8);
+  box-shadow: 0 5px 12px rgba(91, 53, 214, 0.15);
+  color: white;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 160ms ease, opacity 160ms ease;
+}
+
+.accountPrimaryButton:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.accountPrimaryButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.accountFormMessage {
+  margin: 0;
+  font-size: 10px;
+}
+
+.accountFormMessage.error {
+  color: #c54853;
+}
+
+.accountFormMessage.success {
+  color: #238860;
+}
+
+.accountHint {
+  margin: 0;
+  color: #9794a3;
+  font-size: 10px;
+}
+
+.settingsSavedBadge {
+  border: 1px solid #e4e0f1;
+  border-radius: 20px;
+  padding: 8px 11px;
+  background: white;
+  color: #6550bf;
+  font-size: 9px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.settingsPanels {
+  display: grid;
+  max-width: 850px;
+  gap: 15px;
+}
+
+.settingsPanel {
+  padding: 22px;
+}
+
+.settingRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  border-top: 1px solid #f1eff5;
+  padding: 16px 0;
+}
+
+.settingRow:first-of-type {
+  padding-top: 3px;
+  border-top: 0;
+}
+
+.settingRow > span {
+  display: grid;
+  gap: 5px;
+}
+
+.settingRow strong {
+  color: #4d495f;
+  font-size: 11px;
+}
+
+.settingRow small {
+  max-width: 450px;
+  color: #9592a2;
+  font-size: 9px;
+  line-height: 1.5;
+}
+
+.settingRow select {
+  min-width: 145px;
+  height: 38px;
+  border: 1px solid #e5e2ed;
+  border-radius: 8px;
+  padding: 0 10px;
+  background: white;
+  color: #514d61;
+  font: inherit;
+  font-size: 10px;
+}
+
+.settingsPrivacyNote {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid #e9e5f7;
+  border-radius: 12px;
+  padding: 13px 15px;
+  background: #f6f4ff;
+  color: #77728a;
+  font-size: 10px;
+}
+
+.settingsPrivacyNote > span {
+  font-size: 16px;
+}
+
+.settingsPrivacyNote p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+@media (max-width: 1050px) {
+  .accountContentGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .accountPageIntro {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .accountMetricGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .accountMetricCard {
+    padding: 13px;
+  }
+
+  .profileLayout {
+    grid-template-columns: 1fr;
+  }
+
+  .profileSummaryPanel {
+    min-height: 200px;
+  }
+}
+
+@media (max-width: 520px) {
+  .accountFormRow {
+    grid-template-columns: 1fr;
+  }
+
+  .settingRow {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .settingRow select {
+    width: 100%;
+  }
+}

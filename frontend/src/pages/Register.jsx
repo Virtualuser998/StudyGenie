@@ -14,6 +14,8 @@ function Register() {
   });
 
   const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState("error");
+  const [loading, setLoading] = useState(false);
 
 
   const handleChange = (e) => {
@@ -29,6 +31,7 @@ function Register() {
   const handleSubmit = async (e) => {
 
     e.preventDefault();
+    setMessage("");
 
     if (
       formData.password !==
@@ -38,41 +41,47 @@ function Register() {
       setMessage(
         "Passwords do not match"
       );
+      setMessageType("error");
 
       return;
     }
 
+    if (formData.password.length < 8) {
+      setMessage("Password must be at least 8 characters");
+      setMessageType("error");
+      return;
+    }
 
     try {
+      setLoading(true);
 
       const response =
         await axios.post(
-          "http://localhost:5000/api/auth/register",
+          "/api/auth/register",
           {
-            name: formData.name,
-            email: formData.email,
+            name: formData.name.trim(),
+            email: formData.email.trim().toLowerCase(),
             password: formData.password
           }
         );
 
       setMessage(
-        response.data.message
+        response.data.message || "Registration successful"
       );
-
-      setTimeout(() => {
-
-        navigate("/login");
-
-      }, 1000);
+      setMessageType("success");
+      window.setTimeout(() => navigate("/login"), 900);
 
 
     } catch (error) {
 
       setMessage(
         error.response?.data?.message ||
-        "Registration Failed"
+        "Unable to connect to StudyGenie. Please try again."
       );
+      setMessageType("error");
 
+    } finally {
+      setLoading(false);
     }
 
   };
@@ -129,56 +138,68 @@ function Register() {
           </p>
 
 
-          <label>
+          <label htmlFor="register-name">
             Full Name
           </label>
 
           <input
+            id="register-name"
             type="text"
             name="name"
             placeholder="Enter your full name"
+            autoComplete="name"
+            minLength="2"
+            maxLength="80"
             value={formData.name}
             onChange={handleChange}
             required
           />
 
 
-          <label>
+          <label htmlFor="register-email">
             Email Address
           </label>
 
           <input
+            id="register-email"
             type="email"
             name="email"
             placeholder="Enter your email address"
+            autoComplete="email"
             value={formData.email}
             onChange={handleChange}
             required
           />
 
 
-          <label>
+          <label htmlFor="register-password">
             Password
           </label>
 
           <input
+            id="register-password"
             type="password"
             name="password"
             placeholder="Create password"
+            autoComplete="new-password"
+            minLength="8"
             value={formData.password}
             onChange={handleChange}
             required
           />
 
 
-          <label>
+          <label htmlFor="register-confirm-password">
             Confirm Password
           </label>
 
           <input
+            id="register-confirm-password"
             type="password"
             name="confirmPassword"
             placeholder="Confirm password"
+            autoComplete="new-password"
+            minLength="8"
             value={formData.confirmPassword}
             onChange={handleChange}
             required
@@ -188,13 +209,14 @@ function Register() {
           <button
             className="authButton"
             type="submit"
+            disabled={loading}
           >
-            Register Now
+            {loading ? "Creating account..." : "Register Now"}
           </button>
 
 
           {message && (
-            <p className="message">
+            <p className={`message ${messageType}`} role={messageType === "error" ? "alert" : "status"}>
               {message}
             </p>
           )}

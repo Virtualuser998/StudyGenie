@@ -14,17 +14,20 @@ function Login() {
 
   const [message, setMessage] =
     useState("");
+  const [loading, setLoading] = useState(false);
 
 
   const handleLogin = async (e) => {
 
     e.preventDefault();
+    setMessage("");
+    setLoading(true);
 
     try {
 
       const response =
         await axios.post(
-          "http://localhost:5000/api/auth/login",
+          "/api/auth/login",
           {
             email,
             password
@@ -51,9 +54,11 @@ function Login() {
 
       setMessage(
         error.response?.data?.message ||
-        "Login Failed"
+        "Unable to connect to StudyGenie. Please try again."
       );
 
+    } finally {
+      setLoading(false);
     }
 
   };
@@ -106,13 +111,15 @@ function Login() {
           </p>
 
 
-          <label>
+          <label htmlFor="login-email">
             Email Address
           </label>
 
           <input
+            id="login-email"
             type="email"
             placeholder="Enter your email"
+            autoComplete="email"
             value={email}
             onChange={
               (e) =>
@@ -122,13 +129,15 @@ function Login() {
           />
 
 
-          <label>
+          <label htmlFor="login-password">
             Password
           </label>
 
           <input
+            id="login-password"
             type="password"
             placeholder="Enter password"
+            autoComplete="current-password"
             value={password}
             onChange={
               (e) =>
@@ -141,13 +150,14 @@ function Login() {
           <button
             type="submit"
             className="authButton"
+            disabled={loading}
           >
-            Login
+            {loading ? "Signing in..." : "Login"}
           </button>
 
 
           {message && (
-            <p className="message">
+            <p className="message" role="alert">
               {message}
             </p>
           )}

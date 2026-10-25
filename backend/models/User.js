@@ -18,6 +18,18 @@ const userSchema =
             password: {
                 type: String,
                 required: true
+            },
+
+            course: {
+                type: String,
+                trim: true,
+                default: "B.Sc. IT"
+            },
+
+            studyYear: {
+                type: String,
+                trim: true,
+                default: "TY"
             }
 
         },

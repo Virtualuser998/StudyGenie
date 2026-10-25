@@ -20,6 +20,14 @@ function getInitialPlan() {
   }
 }
 
+function getPlannerPreferences() {
+  try {
+    return JSON.parse(localStorage.getItem("studygenie-study-settings") || "{}");
+  } catch {
+    return {};
+  }
+}
+
 function getWeekDays(anchor) {
   const start = new Date(anchor);
   start.setHours(0, 0, 0, 0);
@@ -33,13 +41,14 @@ function getWeekDays(anchor) {
 
 function StudyPlanner() {
   const [plan, setPlan] = useState(getInitialPlan);
+  const [preferences] = useState(getPlannerPreferences);
   const [weekOffset, setWeekOffset] = useState(0);
   const today = dayFormat(new Date());
   const [selectedDate, setSelectedDate] = useState(today);
   const [title, setTitle] = useState("");
-  const [subject, setSubject] = useState("DBMS");
+  const [subject, setSubject] = useState(preferences.defaultSubject || "DBMS");
   const [time, setTime] = useState("09:00");
-  const [duration, setDuration] = useState("45");
+  const [duration, setDuration] = useState(String(preferences.defaultSessionLength || 45));
 
   const weekAnchor = useMemo(() => {
     const date = new Date();

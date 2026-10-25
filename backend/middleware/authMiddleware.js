@@ -18,9 +18,17 @@ const authMiddleware = (req, res, next) => {
       });
     }
 
+    const jwtSecret = process.env.JWT_SECRET || process.env.SESSION_SECRET;
+
+    if (!jwtSecret) {
+      return res.status(503).json({
+        message: "Authentication is not configured"
+      });
+    }
+
     const decoded = jwt.verify(
       token,
-      process.env.JWT_SECRET
+        jwtSecret
     );
 
     req.user = decoded;
